@@ -1,26 +1,39 @@
-<ion-view title="sale tab" hide-nav-bar="true" id="page2" class=" ">
-    <ion-content padding="true" class="manual-ios-statusbar-padding">
-        <p id="saleTab-markdown2" style="color:#000000;font-size:16px;text-align:center;" class=" ">本月销售额</p>
-        <p id="saleTab-markdown3" style="color:#000000;font-size:33px;text-align:center;" class=" ">1,245,600.00</p>
-        <p id="saleTab-markdown5" style="color:#000000;font-size:14px;text-align:right;" class=" ">今日销售：10,500.00</p>
+<ion-view title="销售" class=" ">
+    <ion-content padding="true" class="manual-ios-statusbar-padding has-header">
+        <p style="font-size:16px;text-align:center;" class=" ">本月销售额</p>
+        <a style="font-size:33px;text-align:center;" class="button button-block button-light icon-right ion-chevron-right">{{sale.curMonth | currency:""}}</a>
+        <a style="font-size:14px;text-align:right;" class="button button-small button-block button-light icon-right ion-chevron-right">今日销售：{{sale.curDay | currency:""}}</a>
         <div id="saleTab-button-bar3" class=" button-bar ">
             <button id="saleTab-button10" class=" button button-positive  button-block icon ion-android-camera ">扫码</button>
-            <a ui-sref="tabsController.page5" id="saleTab-button11" class=" button button-positive  button-block button-outline icon ion-android-clipboard ">手动输入</a>
+            <a ui-sref="tabs.saleItem" id="saleTab-button11" class=" button button-positive  button-block button-outline icon ion-android-clipboard ">手动输入</a>
         </div>
         <form id="saleTab-form2" class="list ">
-            <div class="item item-body " id="saleTab-list-item-container1">
-                <p id="saleTab-markdown6" style="margin-top:0px;color:#000000;text-align:right;" class=" ">总价：¥11,800.00</p>
-                <ion-list id="saleTab-list1" class=" ">
-                    <ion-list id="saleTab-list2" class=" ">
-                        <ion-item id="saleTab-list-item2" class="  ">高压锅*2 ¥10,800.00</ion-item>
-                        <ion-item id="saleTab-list-item3" class="  ">纤巧套装*1 ¥219.00</ion-item>
-                        <ion-item id="saleTab-list-item4" class="  ">小旋风*1 ¥588.00</ion-item>
-                    </ion-list>
-                </ion-list>
+            <div class="card">
+                <p id="saleTab-markdown6" style="margin-right:12px;text-align:right;" class=" ">总价：{{saleItems.totalPrice|currency:""}}</p>
+                <div class="row" style="background-color: #d1d1d1;">
+                  <div class="col col-60">名称</div>
+                  <div class="col">单价</div>
+                  <div class="col" style="text-align:right;">数量</div>
+                  <div class="col" style="text-align:right;">删除</div>
+                </div>
+                <div ng-repeat="saleItem in saleItems.items">
+                  <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
+                    <div class="col col-60">{{saleItem.title}}</div>
+                    <div class="col">{{saleItem.price|currency:""}}</div>
+                    <div class="col" style="text-align:right;">{{saleItem.count}}</div>
+                    <a class="button button-small button-icon icon ion-trash-b" ng-click="remove(saleItem)"></a>
+                  </div>
+                  <div class="row" ng-if="$even">
+                    <div class="col col-60">{{saleItem.title}}</div>
+                    <div class="col">{{saleItem.price|currency:""}}</div>
+                    <div class="col" style="text-align:right;">{{saleItem.count}}</div>
+                    <a class="button button-small button-icon icon ion-trash-b" ng-click="remove(saleItem)"></a>
+                  </div>
+                </div>
             </div>
             <div id="saleTab-button-bar1" class=" button-bar ">
                 <button id="saleTab-button3" class=" button button-positive  button-block icon ion-android-checkmark-circle ">提交</button>
-                <button id="saleTab-button4" class=" button button-positive  button-block button-outline icon ion-android-cancel ">取消</button>
+                <button id="saleTab-button4" class=" button button-positive  button-block button-outline icon ion-android-cancel " ng-click="cancel()">取消</button>
             </div>
         </form>
     </ion-content>

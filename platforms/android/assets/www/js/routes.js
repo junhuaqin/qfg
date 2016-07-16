@@ -35,7 +35,7 @@ angular.module('app.routes', [])
     views: {
       'account': {
         templateUrl: 'templates/accountTab.html',
-        controller: 'cloudTabCtrl'
+        controller: 'accountTabCtrl'
       }
     }
   })

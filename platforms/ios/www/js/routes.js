@@ -7,57 +7,57 @@ angular.module('app.routes', [])
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
   $stateProvider
-    
-  
 
-      .state('tabsController.saleTab', {
+
+
+  .state('tabs.sales', {
     url: '/sales',
     views: {
-      'tab1': {
+      'sales': {
         templateUrl: 'templates/saleTab.html',
         controller: 'saleTabCtrl'
       }
     }
   })
 
-  .state('tabsController.storeTabDefaultPage', {
+  .state('tabs.stores', {
     url: '/stores',
     views: {
-      'tab2': {
-        templateUrl: 'templates/storeTabDefaultPage.html',
-        controller: 'storeTabDefaultPageCtrl'
+      'stores': {
+        templateUrl: 'templates/storeTab.html',
+        controller: 'storeTabCtrl'
       }
     }
   })
 
-  .state('tabsController.cloudTabDefaultPage', {
-    url: '/page4',
+  .state('tabs.account', {
+    url: '/account',
     views: {
-      'tab3': {
-        templateUrl: 'templates/cloudTabDefaultPage.html',
-        controller: 'cloudTabDefaultPageCtrl'
+      'account': {
+        templateUrl: 'templates/accountTab.html',
+        controller: 'accountTabCtrl'
       }
     }
   })
 
-  .state('tabsController', {
-    url: '/page1',
-    templateUrl: 'templates/tabsController.html',
+  .state('tabs', {
+    url: '/tabs',
+    templateUrl: 'templates/tabs.html',
     abstract:true
   })
 
-  .state('tabsController.page5', {
+  .state('tabs.saleItem', {
     url: '/saleitem',
     views: {
-      'tab1': {
-        templateUrl: 'templates/page5.html',
-        controller: 'page5Ctrl'
+      'sales': {
+        templateUrl: 'templates/saleItem.html',
+        controller: 'saleItemCtrl'
       }
     }
   })
 
-$urlRouterProvider.otherwise('/page1/sales')
+$urlRouterProvider.otherwise('/tabs/sales')
 
-  
+
 
 });

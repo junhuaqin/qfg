@@ -15,7 +15,7 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('cloudTabCtrl', function($scope) {
+.controller('accountTabCtrl', function($scope) {
 
 })
 
