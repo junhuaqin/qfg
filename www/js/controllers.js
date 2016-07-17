@@ -16,34 +16,15 @@ angular.module('app.controllers', [])
     };
 
     $scope.scanBarcode = function() {
-//        $http.get("http://www.tbh.cn/wechat/index.php?app=product&act=product&code=111224140833")
-        $http({
-          method : 'POST',
-          url  : 'http://www.tbh.cn/member_api/product.php',
-          data : {act:'get_product_by_unique_code',unique_code:111224140833}, // pass in data as strings
-          headers : { 'Content-Type': 'application/x-www-form-urlencoded'},
-          transformRequest: function (data, headersGetter) {
-                          var formData = new FormData();
-                          angular.forEach(data, function (value, key) {
-                              formData.append(key, value);
-                          });
-
-                          var headers = headersGetter();
-                          delete headers['Content-Type'];
-
-                          return formData;
-                      }
-        })
-        .success(function(data) {
-          alert(data.toString());
-          alert(data.info.product_code);
-        })
-        .error(function(data) {
-          alert("error:"+data.toString());
-        });
-//        $cordovaBarcodeScanner.scan().then(function(imageData) {
-//            alert(imageData.text);
-//
+        var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
+        //$cordovaBarcodeScanner.scan().then(function(imageData) {
+            //alert(imageData.text);
+            var index = imageData.text.lastIndexOf('/');
+            if (index < 0) {
+              alert("无效码:"+imageData.text);
+              return;
+            }
+            $state.go('tabs.saleItem', {code:imageData.text.substr(index+1)});
 //        }, function(error) {
 //            alert("扫码失败: " + error);
 //        });
@@ -58,9 +39,10 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('saleItemCtrl', function($scope, $state, SaleService) {
-    $scope.saleItemTemp = {code:123,title:"test",price:123,count:1};
-    $scope.saleItem = angular.copy($scope.saleItemTemp);
+.controller('saleItemCtrl', function($scope, $state, $stateParams, $http, SaleService, StoreService) {
+    $scope.stores = angular.copy(StoreService.getStore());
+//    $scope.saleItemTemp = {code:parseInt($stateParams.code), count:1};
+    $scope.saleItem = $scope.stores[0];
     $scope.putItem = function() {
         SaleService.putSaleItem($scope.saleItem);
         $scope.saleItem = angular.copy($scope.saleItemTemp);

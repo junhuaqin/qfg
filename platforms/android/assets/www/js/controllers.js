@@ -17,29 +17,28 @@ angular.module('app.controllers', [])
 
     $scope.scanBarcode = function() {
 //        $http.get("http://www.tbh.cn/wechat/index.php?app=product&act=product&code=111224140833")
+        var formData = new FormData();
+        formData.append("act", "get_product_by_unique_code");
+        formData.append("unique_code", 111224140833);
         $http({
           method : 'POST',
           url  : 'http://www.tbh.cn/member_api/product.php',
-          data : {act:'get_product_by_unique_code',unique_code:111224140833}, // pass in data as strings
-          headers : { 'Content-Type': 'application/x-www-form-urlencoded'},
-          transformRequest: function (data, headersGetter) {
-                          var formData = new FormData();
-                          angular.forEach(data, function (value, key) {
-                              formData.append(key, value);
-                          });
-
-                          var headers = headersGetter();
-                          delete headers['Content-Type'];
-
-                          return formData;
-                      }
+          data : formData,
+          headers : {'Content-Type': 'application/x-www-form-urlencoded'},
+//          transformRequest: function (data) {
+//
+//                return formData;
+//              },
+          transformResponse: function (cnv) {
+                return JSON.parse(cnv);
+              }
         })
         .success(function(data) {
-          alert(data.toString());
+          alert(data);
           alert(data.info.product_code);
         })
         .error(function(data) {
-          alert("error:"+data.toString());
+          alert("error:"+data);
         });
 //        $cordovaBarcodeScanner.scan().then(function(imageData) {
 //            alert(imageData.text);
