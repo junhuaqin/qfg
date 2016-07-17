@@ -47,7 +47,7 @@ angular.module('app.routes', [])
   })
 
   .state('tabs.saleItem', {
-    url: '/saleitem',
+    url: '/saleitem/:code',
     views: {
       'sales': {
         templateUrl: 'templates/saleItem.html',
@@ -55,6 +55,16 @@ angular.module('app.routes', [])
       }
     }
   })
+
+  .state('tabs.saleShow', {
+      url: '/sales/:from/:to',
+      views: {
+        'sales': {
+          templateUrl: 'templates/saleShow.html',
+          controller: 'saleShowCtrl'
+        }
+      }
+    })
 
 $urlRouterProvider.otherwise('/tabs/sales')
 
