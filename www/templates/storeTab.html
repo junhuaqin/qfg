@@ -12,29 +12,29 @@
           <div class="col col-40">名称</div>
           <div class="col" style="text-align:right;">库存</div>
         </div>
-        <div ng-repeat="item in products | filter:search | orderBy:'count'">
-          <div class= "assertive" ng-if="item.count<5">
+        <div ng-repeat="item in products | filter:search | orderBy:'left'">
+          <div class= "assertive" ng-if="item.left<5">
             <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
               <div class="col col-30">{{item.code}}</div>
               <div class="col col-40">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.count}}</div>
+              <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
             <div class="row" ng-if="$even">
               <div class="col col-30">{{item.code}}</div>
               <div class="col col-40">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.count}}</div>
+              <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
           </div>
-          <div ng-if="item.count>=5">
+          <div ng-if="item.left>=5">
             <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
               <div class="col col-30">{{item.code}}</div>
               <div class="col col-40">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.count}}</div>
+              <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
             <div class="row" ng-if="$even">
               <div class="col col-30">{{item.code}}</div>
               <div class="col col-40">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.count}}</div>
+              <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
           </div>
         </div>

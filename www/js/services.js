@@ -35,10 +35,10 @@ angular.module('app.services', [])
 }])
 
 .service('StoreService', [function(){
-  var products = [{code:123, title:"高压锅", price:4200, count:12},
-  {code:124, title:"炒锅", price:5800, count:10},
-  {code:125, title:"纤巧套", price:300, count:1},
-  {code:126, title:"雪影12件套", price:2000, count:2}];
+  var products = [{code:123, title:"高压锅", price:4200, left:12},
+  {code:124, title:"炒锅", price:5800, left:10},
+  {code:125, title:"纤巧套", price:300, left:1},
+  {code:126, title:"雪影12件套", price:2000, left:2}];
 
   return {
     getStore : function() {

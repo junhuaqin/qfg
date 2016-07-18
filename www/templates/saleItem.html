@@ -1,22 +1,27 @@
 <ion-view title="产品信息" class=" ">
     <ion-content padding="true" class="has-header">
+
         <form>
             <div  class="list card">
+            <label class="item item-input" style='overflow: visible;z-index:3;'>
+              <i class="icon ion-search placeholder-icon"></i>
+              <autocomplete  data-tap-disabled="true" ng-model="selectedStore.selected" data="movies"></autocomplete>
+            </label>
             <label class="item item-input ">
-                <span class="input-label">产品码</span>
-                <input type="number" ng-model="saleItem.code">
+              <span class="input-label">编码</span>
+              <input type="number" ng-model="selectedProduct.code">
             </label>
             <label class="item item-input ">
                 <span class="input-label">名称</span>
-                <input type="text" ng-model="saleItem.title">
+                <input type="text" ng-model="selectedProduct.title">
             </label>
             <label class="item item-input ">
                 <span class="input-label">单价</span>
-                <input type="number" ng-model="saleItem.price">
+                <input type="number" ng-model="selectedProduct.price">
             </label>
             <label class="item item-input ">
                 <span class="input-label">数量</span>
-                <input type="number" ng-model="saleItem.count">
+                <input type="number" ng-model="selectedProduct.count">
             </label>
             </div>
             <div class=" button-bar ">

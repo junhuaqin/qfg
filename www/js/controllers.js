@@ -41,13 +41,20 @@ angular.module('app.controllers', [])
 
 .controller('saleItemCtrl', function($scope, $state, $stateParams, $http, SaleService, StoreService) {
     $scope.stores = angular.copy(StoreService.getStore());
-//    $scope.saleItemTemp = {code:parseInt($stateParams.code), count:1};
-    $scope.saleItem = $scope.stores[0];
+    $scope.selectedProduct = {code:0, title:"", price:0, count:0};
     $scope.putItem = function() {
-        SaleService.putSaleItem($scope.saleItem);
-        $scope.saleItem = angular.copy($scope.saleItemTemp);
+        SaleService.putSaleItem(angular.copy(selectedProduct));
         $state.go('tabs.sales');
     };
+
+    $scope.selectedStore = {selected:""};
+      $scope.movies = ["123-高压锅",
+                       "124-炒锅"];
+    $scope.$watch('selectedStore.selected', function() {
+      var words = $scope.selectedStore.selected.split('-');
+      $scope.selectedProduct.code=parseInt(words[0]);
+      $scope.selectedProduct.title=words[1];
+    });
 })
 
 .controller('saleShowCtrl', function($scope, $stateParams, SaleService) {
