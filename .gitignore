@@ -20,6 +20,7 @@ build.properties
 .editorconfig
 ._*
 */build/*
+platforms/*
 build/*
 */.gradle/*
 version.info
