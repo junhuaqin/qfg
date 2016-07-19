@@ -43,7 +43,7 @@ angular.module('app.controllers', [])
     $scope.stores = angular.copy(StoreService.getStore());
     $scope.selectedProduct = {code:0, title:"", price:0, count:0};
     $scope.putItem = function() {
-        SaleService.putSaleItem(angular.copy(selectedProduct));
+        SaleService.putSaleItem(angular.copy($scope.selectedProduct));
         $state.go('tabs.sales');
     };
 
