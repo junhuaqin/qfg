@@ -17,8 +17,7 @@ angular.module('app.controllers', [])
 
     $scope.scanBarcode = function() {
         var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
-        //$cordovaBarcodeScanner.scan().then(function(imageData) {
-            //alert(imageData.text);
+//        $cordovaBarcodeScanner.scan().then(function(imageData) {
             var index = imageData.text.lastIndexOf('/');
             if (index < 0) {
               alert("无效码:"+imageData.text);
@@ -31,33 +30,56 @@ angular.module('app.controllers', [])
     };
 })
 
-.controller('storeTabCtrl', function($scope, StoreService) {
-    this.updateStore = function(products) {
+.controller('storeTabCtrl', function($scope, ProductService) {
+    updateStore = function(products) {
       $scope.products = products;
     };
 
-    StoreService.getStore(this.updateStore);
+    ProductService.getStore(updateStore);
 })
 
 .controller('accountTabCtrl', function($scope) {
 
 })
 
-.controller('saleItemCtrl', function($scope, $state, $stateParams, $http, SaleService, StoreService) {
-    $scope.stores = angular.copy(StoreService.getStore());
-    $scope.selectedProduct = {code:0, title:"", price:0, count:0};
+.controller('saleItemCtrl', function($scope, $state, $stateParams, $http, SaleService, ProductService) {
+    $scope.descriptions = [];
+    updateStore = function(products) {
+      $scope.stores = products;
+      angular.forEach(products, function(product){
+        $scope.descriptions.push(product.barCode+"-"+product.title);
+      });
+    };
+
+    ProductService.getStore(updateStore);
+
+    $scope.selectedProduct = {barCode:0, title:"", unitPrice:0, count:1};
+    $scope.selectedStore = {selected:""};
+
+    updateSelected = function(product) {
+      $scope.selectedProduct = product;
+      $scope.selectedProduct.count = 1;
+      $scope.selectedStore.selected = $scope.selectedProduct.barCode+"-"+$scope.selectedProduct.title;
+    };
+
+    ProductService.getStoreByQR($stateParams.code, updateSelected);
+
     $scope.putItem = function() {
         SaleService.putSaleItem(angular.copy($scope.selectedProduct));
         $state.go('tabs.sales');
     };
 
-    $scope.selectedStore = {selected:""};
-      $scope.movies = ["123-高压锅",
-                       "124-炒锅"];
     $scope.$watch('selectedStore.selected', function() {
       var words = $scope.selectedStore.selected.split('-');
-      $scope.selectedProduct.code=parseInt(words[0]);
-      $scope.selectedProduct.title=words[1];
+      if($scope.selectedProduct.barCode != words[0]){
+          for(var i=0;i<$scope.stores.length;i++){
+            if($scope.stores[i].barCode == words[0]) {
+              $scope.selectedProduct.barCode = $scope.stores[i].barCode;
+              $scope.selectedProduct.title = $scope.stores[i].title;
+              $scope.selectedProduct.unitPrice = $scope.stores[i].unitPrice;
+            }
+          }
+      }
     });
 })
 

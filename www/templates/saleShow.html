@@ -27,13 +27,13 @@
             <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
               <div class="col">{{saleItem.sale}}</div>
               <div class="col col-40">{{saleItem.title}}</div>
-              <div class="col">{{saleItem.price|currency:""}}</div>
+              <div class="col">{{saleItem.unitPrice|currency:""}}</div>
               <div class="col" style="text-align:right;">{{saleItem.count}}</div>
             </div>
             <div class="row" ng-if="$even">
               <div class="col">{{saleItem.sale}}</div>
               <div class="col col-40">{{saleItem.title}}</div>
-              <div class="col">{{saleItem.price|currency:""}}</div>
+              <div class="col">{{saleItem.unitPrice|currency:""}}</div>
               <div class="col" style="text-align:right;">{{saleItem.count}}</div>
             </div>
           </div>
