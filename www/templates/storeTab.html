@@ -15,24 +15,24 @@
         <div ng-repeat="item in products | filter:search | orderBy:'left'">
           <div class= "assertive" ng-if="item.left<5">
             <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
-              <div class="col col-30">{{item.code}}</div>
+              <div class="col col-30">{{item.barCode}}</div>
               <div class="col col-40">{{item.title}}</div>
               <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
             <div class="row" ng-if="$even">
-              <div class="col col-30">{{item.code}}</div>
+              <div class="col col-30">{{item.barCode}}</div>
               <div class="col col-40">{{item.title}}</div>
               <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
           </div>
           <div ng-if="item.left>=5">
             <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
-              <div class="col col-30">{{item.code}}</div>
+              <div class="col col-30">{{item.barCode}}</div>
               <div class="col col-40">{{item.title}}</div>
               <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
             <div class="row" ng-if="$even">
-              <div class="col col-30">{{item.code}}</div>
+              <div class="col col-30">{{item.barCode}}</div>
               <div class="col col-40">{{item.title}}</div>
               <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>

@@ -1,6 +1,6 @@
 angular.module('app.controllers', [])
 
-.controller('saleTabCtrl', function($scope, $state, $http, $cordovaBarcodeScanner, SaleService) {
+.controller('saleTabCtrl', function($scope, $state, $cordovaBarcodeScanner, SaleService) {
     $scope.today = new Date();
     $scope.monthStart = new Date();
     $scope.monthStart.setDate(1);
@@ -32,7 +32,11 @@ angular.module('app.controllers', [])
 })
 
 .controller('storeTabCtrl', function($scope, StoreService) {
-    $scope.products = StoreService.getStore();
+    this.updateStore = function(products) {
+      $scope.products = products;
+    };
+
+    StoreService.getStore(this.updateStore);
 })
 
 .controller('accountTabCtrl', function($scope) {
