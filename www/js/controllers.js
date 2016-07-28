@@ -72,12 +72,19 @@ angular.module('app.controllers', [])
     $scope.$watch('selectedStore.selected', function() {
       var words = $scope.selectedStore.selected.split('-');
       if($scope.selectedProduct.barCode != words[0]){
+          var bFind = false;
           for(var i=0;i<$scope.stores.length;i++){
             if($scope.stores[i].barCode == words[0]) {
               $scope.selectedProduct.barCode = $scope.stores[i].barCode;
               $scope.selectedProduct.title = $scope.stores[i].title;
               $scope.selectedProduct.unitPrice = $scope.stores[i].unitPrice;
+              bFind = true;
+              break;
             }
+          }
+
+          if (!bFind) {
+            $scope.selectedProduct = {barCode:0, title:"", unitPrice:0, count:1};
           }
       }
     });
