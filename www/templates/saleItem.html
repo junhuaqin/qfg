@@ -9,11 +9,11 @@
             </label>
             <label class="item item-input ">
               <span class="input-label">编码</span>
-              <input type="number" ng-model="selectedProduct.barCode">
+              <input type="number" ng-disabled="true" ng-model="selectedProduct.barCode">
             </label>
             <label class="item item-input ">
                 <span class="input-label">名称</span>
-                <input type="text" ng-model="selectedProduct.title">
+                <input type="text" ng-disabled="true" ng-model="selectedProduct.title">
             </label>
             <label class="item item-input ">
                 <span class="input-label">单价</span>
@@ -25,7 +25,7 @@
             </label>
             </div>
             <div class=" button-bar ">
-                <button class=" button button-positive  button-block icon ion-android-checkmark-circle " ng-click="putItem()">确定</button>
+                <button class=" button button-positive  button-block icon ion-android-checkmark-circle " ng-click="putItem()" ng-disabled="selectedProduct.barCode===0 || selectedProduct.count<=0">确定</button>
                 <button class=" button button-positive  button-block button-outline icon ion-android-close " ui-sref="tabs.sales">取消</button>
             </div>
         </form>
