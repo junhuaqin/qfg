@@ -91,8 +91,12 @@ angular.module('app.controllers', [])
 })
 
 .controller('saleShowCtrl', function($scope, $stateParams, SaleService) {
+    updateSaleDetail = function(saleDetail) {
+      $scope.saleDetail = saleDetail;
+    };
+
     $scope.getDetail = function(from, to) {
-        $scope.saleDetail = SaleService.getDetail(from, to);
+        SaleService.getDetail(from, to, updateSaleDetail);
     };
 
     $scope.from = new Date($stateParams.from);

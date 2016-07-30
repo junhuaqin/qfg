@@ -1,6 +1,6 @@
 angular.module('app.services', [])
 
-.factory('SaleService', function(){
+.service('SaleService', function($http, backend){
   var sale = {curMonth:123456.00, curDay:321};
   var saleDetail = [{date:new Date(),totalPrice:1200,items:[{sale:"sq",title:"高压锅",unitPrice:4200,count:1}]},
   {date:new Date(),totalPrice:1300,items:[{sale:"lq",title:"高压锅",unitPrice:4200,count:1},{sale:"hy",title:"高压锅xxxxx",unitPrice:4200,count:1}]}];
@@ -9,29 +9,66 @@ angular.module('app.services', [])
   items:[]
   };
 
-  return {
-    getSale : function() {
+  this.getSale = function() {
         return sale;
-    },
-    saleItems : function() {
+    };
+
+  this.saleItems = function() {
         return saleItems;
-    },
-    putSaleItem : function(saleItem) {
+    };
+
+  this.putSaleItem = function(saleItem) {
         saleItems.items.push(saleItem);
         saleItems.totalPrice += saleItem.unitPrice*saleItem.count;
-    },
-    clearAll : function() {
+    };
+
+  this.clearAll = function() {
         saleItems.totalPrice = 0;
         saleItems.items.splice(0, saleItems.items.length);
-    },
-    remove : function(saleItem) {
+    };
+
+  this.remove = function(saleItem) {
         saleItems.totalPrice -= saleItem.unitPrice*saleItem.count;
         saleItems.items.splice(saleItems.items.indexOf(saleItem), 1);
-    },
-    getDetail : function(from, to) {
-        return saleDetail;
-    }
-  };
+    };
+
+  this.getDetail = function(from, to, sucCallBack) {
+        $http.get(backend+"/orders/"+from.getTime()+"/"+to.getTime())
+                   .success(function(response) {
+                      var saleDetail = [];
+
+                      angular.forEach(response, function(order){
+                        var orderItems = [];
+                        angular.forEach(order.items, function(oi){
+                          oi.unitPrice /= 100;
+                          orderItems.push({sale:order.sale,
+                                           title:oi.title,
+                                           unitPrice:oi.unitPrice,
+                                           count:oi.count});
+                        });
+
+                        var sdItem = {date:new Date(order.createdAt),
+                                      totalPrice:order.totalPrice,
+                                      items:orderItems};
+
+                        var bFind = false;
+                        for (var i = 0; i < saleDetail.length; i++) {
+                          if (saleDetail[i].date == sdItem.date) {
+                            saleDetail[i].totalPrice += sdItem.totalPrice;
+                            saleDetail[i].items.concat(sdItem.items);
+                            bFind = true;
+                            break;
+                          }
+                        }
+
+                        if (!bFind) {
+                          saleDetail.push(sdItem);
+                        }
+                      });
+
+                      sucCallBack(saleDetail);
+                   });
+    };
 })
 
 .service('ProductService', function($http, backend){
