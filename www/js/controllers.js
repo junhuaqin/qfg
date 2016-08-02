@@ -118,7 +118,12 @@ angular.module('app.controllers', [])
     $scope.getDetail($scope.from, $scope.to);
 })
 
-.controller('loginCtrl', function($scope, $state) {
+.controller('loginCtrl', function($scope, $state, $cordovaDevice) {
+    document.addEventListener("deviceready", function () {
+      var uuid = $cordovaDevice.getUUID();
+      alert(uuid);
+    }, false);
+
     $scope.login = function() {
       $state.go('tabs.sales');
     };

@@ -1,6 +1,6 @@
 angular.module('app.services', [])
 
-.service('SaleService', function($http, backend){
+.service('SaleService', function(BackgroundService){
   var sale = {curMonth:123456.00, curDay:321};
   var saleDetail = [{date:new Date(),totalPrice:1200,items:[{sale:"sq",title:"高压锅",unitPrice:4200,count:1}]},
   {date:new Date(),totalPrice:1300,items:[{sale:"lq",title:"高压锅",unitPrice:4200,count:1},{sale:"hy",title:"高压锅xxxxx",unitPrice:4200,count:1}]}];
@@ -10,7 +10,7 @@ angular.module('app.services', [])
   };
 
   this.getSaleStatics = function(sucCallBack) {
-        $http.get(backend+"/orders/statics")
+        BackgroundService.get("/orders/statics")
              .success(function(response) {
                 response.curMonth /= 100;
                 response.curDay /= 100;
@@ -57,14 +57,14 @@ angular.module('app.services', [])
           item.unitPrice *= 100;
         });
 
-        $http.post(backend+"/orders/add", postItem)
+        BackgroundService.post("/orders/add", postItem)
               .success(function(response) {
                   sucCallBack(response);
               });
     };
 
   this.getDetail = function(from, to, sucCallBack) {
-        $http.get(backend+"/orders/"+from.getTime()+"/"+to.getTime())
+        BackgroundService.get("/orders/"+from.getTime()+"/"+to.getTime())
                    .success(function(response) {
                       var saleDetail = [];
 
@@ -102,11 +102,11 @@ angular.module('app.services', [])
     };
 })
 
-.service('ProductService', function($http, backend){
+.service('ProductService', function(BackgroundService){
 /*  var products = [{barCode:123, title:"高压锅", unitPrice:4200, left:12}];*/
 
   this.getStore = function(sucCallBack) {
-      $http.get(backend+"/products", { cache: true })
+      BackgroundService.get("/products", { cache: true })
            .success(function(response) {
               angular.forEach(response, function(product){
                 product.unitPrice /= 100;
@@ -117,12 +117,27 @@ angular.module('app.services', [])
 
   this.getStoreByQR = function(qrCode, sucCallBack) {
       if (angular.isDefined(qrCode) && (!(null === qrCode)) && ("" != qrCode)){
-          $http.get(backend+"/products/qr/"+qrCode, { cache: true })
+            BackgroundService.get("/products/qr/"+qrCode, { cache: true })
                .success(function(response) {
                   response.unitPrice /= 100;
                   sucCallBack(response);
                });
       }
+  };
+})
+
+.service('BackgroundService', function($http, backend){
+  this.get = function() {
+    var len= arguments.length;
+    if(len == 2) {
+      return $http.get(backend+arguments[0], arguments[1]);
+    } else {
+      return $http.get(backend+arguments[0]);
+    }
+  };
+
+  this.post = function(url, data) {
+    return $http.post(backend+url, data);
   };
 });
 
