@@ -1,18 +1,21 @@
-<ion-view title="Login">
+<ion-view title="登录">
     <ion-content padding="true" class="has-header">
+        <div class="">
+          <img src="img/login.png" width="100%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+        </div>
         <form class="list " name="loginForm">
             <ion-list class="">
                 <label class="item item-input ">
-                    <span class="input-label">用户名:</span>
-                    <input type="text" name="user" ng-model="username" required>
+                    <span class="input-label icon ion-ios-person-outline positive"></span>
+                    <input type="text" name="user" placeholder="用户名" ng-model="username" required>
                 </label>
                 <label class="item item-input ">
-                    <span class="input-label">密码:</span>
-                    <input type="password" name="password" ng-model="password" required>
+                    <span class="input-label icon ion-ios-unlocked-outline positive"></span>
+                    <input type="password" name="password" placeholder="密码" ng-model="password" required>
                 </label>
             </ion-list>
             <div class="spacer" style="height: 40px;"></div>
-            <button class=" button button-positive button-block " ng-disabled="loginForm.user.$invalid || loginForm.password.$invalid" ng-click="login()">Log in</button>
+            <button class=" button button-positive button-block " ng-disabled="loginForm.user.$invalid || loginForm.password.$invalid" ng-click="login()">登录</button>
         </form>
     </ion-content>
 </ion-view>
