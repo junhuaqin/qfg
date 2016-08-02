@@ -20,6 +20,26 @@ angular.module('app.routes', [])
     }
   })
 
+  .state('tabs.saleItem', {
+    url: '/saleitem/:code',
+    views: {
+      'sales': {
+        templateUrl: 'templates/saleItem.html',
+        controller: 'saleItemCtrl'
+      }
+    }
+  })
+
+  .state('tabs.saleShow', {
+      url: '/sales/:from/:to',
+      views: {
+        'sales': {
+          templateUrl: 'templates/saleShow.html',
+          controller: 'saleShowCtrl'
+        }
+      }
+  })
+
   .state('tabs.stores', {
     url: '/stores',
     views: {
@@ -46,27 +66,13 @@ angular.module('app.routes', [])
     abstract:true
   })
 
-  .state('tabs.saleItem', {
-    url: '/saleitem/:code',
-    views: {
-      'sales': {
-        templateUrl: 'templates/saleItem.html',
-        controller: 'saleItemCtrl'
-      }
-    }
+  .state('login', {
+    url: '/login',
+    templateUrl: 'templates/login.html',
+    controller: 'loginCtrl'
   })
 
-  .state('tabs.saleShow', {
-      url: '/sales/:from/:to',
-      views: {
-        'sales': {
-          templateUrl: 'templates/saleShow.html',
-          controller: 'saleShowCtrl'
-        }
-      }
-    })
-
-$urlRouterProvider.otherwise('/tabs/sales')
+$urlRouterProvider.otherwise('/login')
 
 
 

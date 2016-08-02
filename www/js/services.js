@@ -9,8 +9,13 @@ angular.module('app.services', [])
   items:[]
   };
 
-  this.getSale = function() {
-        return sale;
+  this.getSaleStatics = function(sucCallBack) {
+        $http.get(backend+"/orders/statics")
+             .success(function(response) {
+                response.curMonth /= 100;
+                response.curDay /= 100;
+                sucCallBack(response);
+             });
     };
 
   this.saleItems = function() {
@@ -18,7 +23,20 @@ angular.module('app.services', [])
     };
 
   this.putSaleItem = function(saleItem) {
-        saleItems.items.push(saleItem);
+        var bFind = false;
+        for (var i = 0; i < saleItems.items.length; i++) {
+          if ((saleItems.items[i].barCode == saleItem.barCode)
+              && (saleItems.items[i].unitPrice == saleItem.unitPrice)){
+            saleItems.items[i].count += saleItem.count;
+            bFind = true;
+            break;
+          }
+        }
+
+        if(!bFind) {
+          saleItems.items.push(saleItem);
+        }
+
         saleItems.totalPrice += saleItem.unitPrice*saleItem.count;
     };
 
@@ -30,6 +48,19 @@ angular.module('app.services', [])
   this.remove = function(saleItem) {
         saleItems.totalPrice -= saleItem.unitPrice*saleItem.count;
         saleItems.items.splice(saleItems.items.indexOf(saleItem), 1);
+    };
+
+  this.submitSaleItems = function(sucCallBack) {
+        var postItem = angular.copy(saleItems);
+        postItem.totalPrice *= 100;
+        angular.forEach(postItem.items, function(item) {
+          item.unitPrice *= 100;
+        });
+
+        $http.post(backend+"/orders/add", postItem)
+              .success(function(response) {
+                  sucCallBack(response);
+              });
     };
 
   this.getDetail = function(from, to, sucCallBack) {
@@ -75,7 +106,7 @@ angular.module('app.services', [])
 /*  var products = [{barCode:123, title:"高压锅", unitPrice:4200, left:12}];*/
 
   this.getStore = function(sucCallBack) {
-      $http.get(backend+"/products")
+      $http.get(backend+"/products", { cache: true })
            .success(function(response) {
               angular.forEach(response, function(product){
                 product.unitPrice /= 100;
@@ -86,7 +117,7 @@ angular.module('app.services', [])
 
   this.getStoreByQR = function(qrCode, sucCallBack) {
       if (angular.isDefined(qrCode) && (!(null === qrCode)) && ("" != qrCode)){
-          $http.get(backend+"/products/qr/"+qrCode)
+          $http.get(backend+"/products/qr/"+qrCode, { cache: true })
                .success(function(response) {
                   response.unitPrice /= 100;
                   sucCallBack(response);

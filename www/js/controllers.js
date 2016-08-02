@@ -5,7 +5,6 @@ angular.module('app.controllers', [])
     $scope.monthStart = new Date();
     $scope.monthStart.setDate(1);
     $scope.monthStart.setHours(0,0,0,0);
-    $scope.sale = SaleService.getSale();
     $scope.saleItems = SaleService.saleItems();
     $scope.cancel = function() {
         SaleService.clearAll();
@@ -14,6 +13,12 @@ angular.module('app.controllers', [])
     $scope.remove = function(saleItem) {
         SaleService.remove(saleItem);
     };
+
+    updateSaleStatics = function(saleStatics) {
+      $scope.sale = saleStatics;
+    };
+
+    SaleService.getSaleStatics(updateSaleStatics);
 
     $scope.scanBarcode = function() {
         var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
@@ -28,6 +33,15 @@ angular.module('app.controllers', [])
 //            alert("扫码失败: " + error);
 //        });
     };
+
+    submitSuccess = function(response) {
+      SaleService.clearAll();
+      alert("success");
+    };
+
+    $scope.submitSaleItems = function() {
+      SaleService.submitSaleItems(submitSuccess);
+    }
 })
 
 .controller('storeTabCtrl', function($scope, ProductService) {
@@ -102,4 +116,10 @@ angular.module('app.controllers', [])
     $scope.from = new Date($stateParams.from);
     $scope.to = new Date($stateParams.to);
     $scope.getDetail($scope.from, $scope.to);
+})
+
+.controller('loginCtrl', function($scope, $state) {
+    $scope.login = function() {
+      $state.go('tabs.sales');
+    };
 })

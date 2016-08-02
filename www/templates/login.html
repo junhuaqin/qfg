@@ -1,0 +1,18 @@
+<ion-view title="Login">
+    <ion-content padding="true" class="has-header">
+        <form class="list " name="loginForm">
+            <ion-list class="">
+                <label class="item item-input ">
+                    <span class="input-label">用户名:</span>
+                    <input type="text" name="user" ng-model="username" required>
+                </label>
+                <label class="item item-input ">
+                    <span class="input-label">密码:</span>
+                    <input type="password" name="password" ng-model="password" required>
+                </label>
+            </ion-list>
+            <div class="spacer" style="height: 40px;"></div>
+            <button class=" button button-positive button-block " ng-disabled="loginForm.user.$invalid || loginForm.password.$invalid" ng-click="login()">Log in</button>
+        </form>
+    </ion-content>
+</ion-view>
