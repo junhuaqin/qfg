@@ -80,6 +80,7 @@ angular.module('app.controllers', [])
 
     $scope.putItem = function() {
         SaleService.putSaleItem(angular.copy($scope.selectedProduct));
+        $scope.selectedStore = {selected:""};
         $state.go('tabs.sales');
     };
 
