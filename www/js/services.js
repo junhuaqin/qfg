@@ -191,7 +191,7 @@ angular.module('app.services', [])
   this.set = function(key,value){
     $window.localStorage[key]=value;
   };
-  
+
   //读取单个属性
   this.get = function(key,defaultValue){
     return  $window.localStorage[key] || defaultValue;
