@@ -13,7 +13,7 @@
       </div>
       <div class="list card collapse" ng-repeat="detail in saleDetail">
         <div class="item">
-          <h2>{{detail.date|date:'yyyy-MM-dd'}}</h2>
+          <h2>{{detail.date|date:'yyyy-MM-dd HH:mm:ss'}}</h2>
           <p>销售额:{{detail.totalPrice|currency:""}}</p>
         </div>
         <div class="item item-body">
