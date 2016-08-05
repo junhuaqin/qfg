@@ -1,6 +1,7 @@
 angular.module('app.controllers', [])
 
-.controller('saleTabCtrl', function($scope, $state, $cordovaBarcodeScanner, UtilService, SaleService) {
+.controller('saleTabCtrl', function($scope, $state, $cordovaBarcodeScanner, $interval, UtilService, SaleService) {
+    $scope.sale = {curDay:0, curMonth:0};
     $scope.today = new Date();
     $scope.monthStart = new Date();
     $scope.monthStart.setDate(1);
@@ -15,6 +16,14 @@ angular.module('app.controllers', [])
 
     updateSaleStatics = function(saleStatics) {
 //      UtilService.hideLoading();
+      var mStep = saleStatics.curMonth / 10;
+      var tStep = saleStatics.curDay / 10;
+      $scope.sale = {curDay:0, curMonth:0};
+      $interval(function(){
+         $scope.sale.curDay += tStep;
+         $scope.sale.curMonth += mStep;
+      },100, 10);
+
       $scope.sale = saleStatics;
       $scope.$broadcast('scroll.refreshComplete');
     };
