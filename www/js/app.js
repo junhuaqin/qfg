@@ -21,4 +21,4 @@ angular.module('app', ['ionic', 'ngCordova', 'autocomplete', 'app.controllers', 
     }
   });
 })
-.constant('backend', 'http://192.168.170.128:8080/ctu/v1')
+.constant('backend', 'http://ctu-env.us-west-2.elasticbeanstalk.com/v1')

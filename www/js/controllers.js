@@ -154,6 +154,10 @@ angular.module('app.controllers', [])
           }
       }
     });
+
+    $scope.clearSearch = function() {
+      $scope.selectedStore.selected = "";
+    };
 })
 
 .controller('saleShowCtrl', function($scope, $stateParams, UtilService, SaleService) {

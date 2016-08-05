@@ -156,7 +156,7 @@ angular.module('app.services', [])
                      });
   };
 
-  this.httpFailed = function(data,status){
+  this.httpFailed = function(data,status, config, header){
     if (400 == status) {
       this.showResult(data, false);
     } else if (404 == status) {
@@ -164,7 +164,7 @@ angular.module('app.services', [])
     } else if (0 == status) {
       this.showResult("连接服务器失败", false);
     }else {
-      this.showResult("未知错误", false);
+      alert("未知错误:"+status+","+header);
     }
   };
 
