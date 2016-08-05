@@ -11,31 +11,18 @@
         </label>
         <button class="item button button-positive  button-block icon ion-android-search" ng-click="getDetail(from, to)">查询</button>
       </div>
-      <div class="list card collapse" ng-repeat="detail in saleDetail">
-        <div class="item">
-          <h2>{{detail.date|date:'yyyy-MM-dd HH:mm:ss'}}</h2>
-          <p>销售额:{{detail.totalPrice|currency:""}}</p>
+      <div class="list card" ng-repeat="detail in saleDetail">
+        <div class="item calm-bg">
+          <h3>{{detail.date|date:'yyyy-MM-dd'}}
+          <span class="item-note assertive">{{detail.totalPrice|currency:""}}</span></h3>
         </div>
-        <div class="item item-body">
-          <div class="row" style="background-color: #d1d1d1;">
-            <div class="col">理家</div>
-            <div class="col col-40">名称</div>
-            <div class="col">单价</div>
-            <div class="col" style="text-align:right;">数量</div>
+        <div ng-repeat="saleItem in detail.items">
+          <div class="item item-divider">
+            <h3>{{saleItem.sale}} {{saleItem.createdAt|date:'HH:mm:ss'}}
+            <span class="item-note assertive">{{saleItem.totalPrice|currency:""}}</span></h3>
           </div>
-          <div ng-repeat="saleItem in detail.items">
-            <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
-              <div class="col">{{saleItem.sale}}</div>
-              <div class="col col-40">{{saleItem.title}}</div>
-              <div class="col">{{saleItem.unitPrice|currency:""}}</div>
-              <div class="col" style="text-align:right;">{{saleItem.count}}</div>
-            </div>
-            <div class="row" ng-if="$even">
-              <div class="col">{{saleItem.sale}}</div>
-              <div class="col col-40">{{saleItem.title}}</div>
-              <div class="col">{{saleItem.unitPrice|currency:""}}</div>
-              <div class="col" style="text-align:right;">{{saleItem.count}}</div>
-            </div>
+          <div class="item" ng-repeat="productItem in saleItem.items">
+            {{productItem.title}}<span class="item-note">{{productItem.unitPrice|currency:""}}*{{productItem.count}}</span>
           </div>
         </div>
       </div>

@@ -4,7 +4,6 @@ angular.module('app.controllers', [])
     $scope.today = new Date();
     $scope.monthStart = new Date();
     $scope.monthStart.setDate(1);
-    $scope.monthStart.setHours(0,0,0,0);
     $scope.saleItems = SaleService.saleItems();
     $scope.cancel = function() {
         SaleService.clearAll();
@@ -15,21 +14,23 @@ angular.module('app.controllers', [])
     };
 
     updateSaleStatics = function(saleStatics) {
-      UtilService.hideLoading();
+//      UtilService.hideLoading();
       $scope.sale = saleStatics;
+      $scope.$broadcast('scroll.refreshComplete');
     };
 
     failedRefreshStatics = function(data, status) {
-      UtilService.hideLoading();
+//      UtilService.hideLoading();
       UtilService.httpFailed(data, status);
+      $scope.$broadcast('scroll.refreshComplete');
     };
 
-    refreshSaleStatics = function() {
-      UtilService.showLoading();
+    $scope.refreshSaleStatics = function() {
+//      UtilService.showLoading();
       SaleService.getSaleStatics(updateSaleStatics, failedRefreshStatics);
     };
 
-    refreshSaleStatics();
+    $scope.refreshSaleStatics();
 
     $scope.scanBarcode = function() {
 //        var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
@@ -47,10 +48,9 @@ angular.module('app.controllers', [])
 
     submitSuccess = function(response) {
       UtilService.hideLoading();
-      $scope.sale.curDay += $scope.saleItems.totalPrice;
-      $scope.sale.curMonth += $scope.saleItems.totalPrice;
       SaleService.clearAll();
       UtilService.showResult("提交成功", true);
+      $scope.refreshSaleStatics();
     };
 
     submitFailed = function(data, status){
@@ -159,12 +159,15 @@ angular.module('app.controllers', [])
     };
 
     $scope.getDetail = function(from, to) {
+      from.setHours(0,0,0,0);
+      to.setHours(23,59,59,0);
       UtilService.showLoading();
       SaleService.getDetail(from, to, updateSaleDetail, failedRefresh);
     };
 
     $scope.from = new Date($stateParams.from);
-    $scope.to = new Date($stateParams.to);
+    $scope.to = new Date($stateParams.to)
+
     $scope.getDetail($scope.from, $scope.to);
 })
 

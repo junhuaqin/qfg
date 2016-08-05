@@ -1,7 +1,7 @@
 angular.module('app.services', [])
 
 .service('SaleService', function(BackgroundService){
-//  var saleDetail = [{date:new Date(),totalPrice:1200,items:[{sale:"sq",title:"高压锅",unitPrice:4200,count:1}]}];
+//  var saleDetail = [{date:new Date(),totalPrice:1200,items:[{sale:"sq", createdAt:"", totalPrice:1200, items:[{title:"高压锅",unitPrice:4200,count:1}]}]];
   var saleItems = {
   totalPrice:0,
   items:[]
@@ -64,37 +64,34 @@ angular.module('app.services', [])
     };
 
   this.getDetail = function(from, to, sucCallBack, errCallBack) {
+        var saleDetail = [];
+        putIntoSaleDetail = function(order) {
+          var vdate = (angular.copy(order.createdAt)).setHours(0,0,0,0);
+          var bFind = false;
+          for (var i = 0; i < saleDetail.length; i++) {
+            if (saleDetail[i].date == vdate) {
+              saleDetail[i].totalPrice += order.totalPrice;
+              saleDetail[i].items.push(order);
+              bFind = true;
+              break;
+            }
+          }
+
+          if (!bFind) {
+            saleDetail.push({date:vdate, totalPrice:order.totalPrice, items:[order]});
+          }
+        };
+
         BackgroundService.get("/orders/"+from.getTime()+"/"+to.getTime())
            .success(function(response) {
-              var saleDetail = [];
-
               angular.forEach(response, function(order){
-                var orderItems = [];
+                order.totalPrice /= 100;
+                order.createdAt = new Date(order.createdAt);
                 angular.forEach(order.items, function(oi){
                   oi.unitPrice /= 100;
-                  orderItems.push({sale:order.sale,
-                                   title:oi.title,
-                                   unitPrice:oi.unitPrice,
-                                   count:oi.count});
                 });
 
-                var sdItem = {date:new Date(order.createdAt),
-                              totalPrice:order.totalPrice/100,
-                              items:orderItems};
-
-                var bFind = false;
-                for (var i = 0; i < saleDetail.length; i++) {
-                  if (saleDetail[i].date == sdItem.date) {
-                    saleDetail[i].totalPrice += sdItem.totalPrice;
-                    saleDetail[i].items.concat(sdItem.items);
-                    bFind = true;
-                    break;
-                  }
-                }
-
-                if (!bFind) {
-                  saleDetail.push(sdItem);
-                }
+                putIntoSaleDetail(order);
               });
 
               sucCallBack(saleDetail);
