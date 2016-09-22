@@ -148,17 +148,17 @@ angular.module('app.controllers', [])
     };
 
     $scope.scanBarcode = function() {
-        var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
-//        $cordovaBarcodeScanner.scan().then(function(imageData) {
+//        var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
+        $cordovaBarcodeScanner.scan().then(function(imageData) {
             var index = imageData.text.lastIndexOf('/');
             if (index < 0) {
               alert("无效码:"+imageData.text);
               return;
             }
             ProductService.getStoreByQR(imageData.text.substr(index+1), updateSelected);
-/*        }, function(error) {
+        }, function(error) {
             alert("扫码失败: " + error);
-        });*/
+        });
     };
 })
 
@@ -186,13 +186,34 @@ angular.module('app.controllers', [])
     $scope.getDetail($scope.from, $scope.to);
 })
 
-.controller('loginCtrl', function($scope, $state, $cordovaDevice) {
-    document.addEventListener("deviceready", function () {
-      var uuid = $cordovaDevice.getUUID();
-      alert(uuid);
-    }, false);
+.controller('loginCtrl', function($scope, $state, UtilService, AccountService) {
+    loginSuccess = function() {
+        UtilService.hideLoading();
+        $state.go('tabs.sales');
+    };
 
-    $scope.login = function() {
-      $state.go('tabs.sales');
+    loginFailed = function(data, status) {
+        UtilService.hideLoading();
+        if (401 == status) {
+            UtilService.showResult("用户名或者密码错误", false);
+        } else {
+            UtilService.httpFailed(data, status);
+        }
+    };
+
+    attemptFailed = function(data) {
+        UtilService.hideLoading();
+    };
+
+    attemptLogin = function() {
+        UtilService.showLoading();
+        AccountService.attemptLogin(loginSuccess, attemptFailed);
+    };
+
+    attemptLogin();
+
+    $scope.login = function(userName, password) {
+        UtilService.showLoading();
+        AccountService.login(userName, password, loginSuccess, loginFailed);
     };
 })

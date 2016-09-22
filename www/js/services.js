@@ -126,8 +126,33 @@ angular.module('app.services', [])
   };
 })
 
+.service('AccountService', function(BackgroundService, locals){
+  this.login = function(user, password, sucCallBack, errCallBack) {
+    var postUser = {userName:user, password:password};
+    BackgroundService.post("/users/login", postUser)
+        .success(function(response) {
+            locals.setObject("account", postUser);
+            BackgroundService.setAuth(user, password);
+            sucCallBack(response);
+        })
+        .error(errCallBack);
+  };
+
+  this.attemptLogin = function(sucCallBack, errCallBack) {
+    var loginUser = locals.getObject("account");
+    if (angular.isDefined(loginUser.userName)) {
+        login(loginUser.userName, loginUser.password, sucCallBack, errCallBack);
+    } else {
+        errCallBack("unauthorized");
+    }
+  }
+}
+)
+
 .service('BackgroundService', function($http, backend){
-  $http.defaults.headers.common.Authorization = "admin:admin";
+  this.setAuth = function(userName, password) {
+    $http.defaults.headers.common.Authorization = userName+":"+password;
+  };
 
   this.get = function() {
     var len= arguments.length;
