@@ -1,0 +1,26 @@
+<ion-view title="产品信息" class=" ">
+    <ion-floating-button click="saveProduct(product)" has-footer="true" button-color="#2AC9AA" icon="ion-checkmark-round" icon-color="#fff">
+    </ion-floating-button>
+    <ion-content padding="true" class="has-header">
+        <form>
+            <div  class="list card">
+            <label class="item item-input ">
+              <span class="input-label">编码</span>
+              <input type="text" ng-disabled="hasEditProduct" ng-model="product.barCode">
+            </label>
+            <label class="item item-input ">
+                <span class="input-label">名称</span>
+                <input type="text" ng-model="product.title">
+            </label>
+            <label class="item item-input ">
+                <span class="input-label">单价</span>
+                <input type="number" ng-model="product.unitPrice">
+            </label>
+            <label class="item item-input ">
+                <span class="input-label">库存</span>
+                <input type="number" ng-model="product.left">
+            </label>
+            </div>
+        </form>
+    </ion-content>
+</ion-view>

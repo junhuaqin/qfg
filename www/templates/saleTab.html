@@ -11,7 +11,7 @@
       <a href="#/tabs/sales/{{monthStart|date:'yyyy-MM-dd'}}/{{today|date:'yyyy-MM-dd'}}" style="font-size:33px;text-align:center;" class="button button-block button-light icon-right ion-chevron-right">{{sale.curMonth | currency:""}}</a>
       <a href="#/tabs/sales/{{today|date:'yyyy-MM-dd'}}/{{today|date:'yyyy-MM-dd'}}" style="font-size:14px;text-align:right;" class="button button-small button-block button-light icon-right ion-chevron-right">今日销售：{{sale.curDay | currency:""}}</a>
 
-      <ion-list class="card">
+      <ion-list type="card">
         <p style="margin-right:12px;text-align:right;" class=" ">总价：{{saleItems.totalPrice|currency:""}}</p>
         <ion-item class="row" style="background-color: #d1d1d1;">
           <div class="col col-50">名称</div>
@@ -21,7 +21,7 @@
         <ion-item class="item-text-wrap" ng-repeat="saleItem in saleItems.items">
           <div class="row">
             <div class="col col-50">{{saleItem.title}}</div>
-            <div class="col col-30">{{saleItem.unitPrice|currency:""}}</div>
+            <div class="col col-40">{{saleItem.unitPrice|currency:""}}</div>
             <div class="col" style="text-align:right;">{{saleItem.count}}</div>
           </div>
           <ion-option-button class="button-assertive" ng-click="remove(saleItem)">

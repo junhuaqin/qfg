@@ -21,7 +21,7 @@ angular.module('app.routes', [])
   })
 
   .state('tabs.saleItem', {
-    url: '/saleitem',
+    url: '/saleItem',
     views: {
       'sales': {
         templateUrl: 'templates/saleItem.html',
@@ -46,6 +46,16 @@ angular.module('app.routes', [])
       'stores': {
         templateUrl: 'templates/storeTab.html',
         controller: 'storeTabCtrl'
+      }
+    }
+  })
+
+  .state('tabs.productItem', {
+    url: '/productItem',
+    views: {
+      'stores': {
+        templateUrl: 'templates/productItem.html',
+        controller: 'editProductCtrl'
       }
     }
   })

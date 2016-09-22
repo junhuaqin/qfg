@@ -43,7 +43,7 @@ angular.module('app.controllers', [])
 
     $scope.addSaleItem = function() {
         $state.go('tabs.saleItem');
-    }
+    };
 
     submitSuccess = function(response) {
       UtilService.hideLoading();
@@ -63,7 +63,7 @@ angular.module('app.controllers', [])
     };
 })
 
-.controller('storeTabCtrl', function($scope, ProductService, UtilService) {
+.controller('storeTabCtrl', function($scope, $state, ProductService, UtilService) {
     updateStore = function(products) {
       UtilService.hideLoading();
       $scope.products = products;
@@ -80,6 +80,30 @@ angular.module('app.controllers', [])
     };
 
     refreshStores();
+
+    $scope.addProduct = function() {
+        $state.go('tabs.productItem');
+    };
+
+    $scope.editProduct = function(product) {
+        ProductService.setEditProduct(product);
+        $state.go('tabs.productItem');
+    };
+
+    deleteSuccess = function(product) {
+        UtilService.hideLoading();
+        refreshStores();
+    };
+
+    failedDelete = function(data, status) {
+      UtilService.hideLoading();
+      UtilService.httpFailed(data, status);
+    };
+
+    $scope.deleteProduct = function(product) {
+        UtilService.showLoading();
+        ProductService.deleteProduct(product, deleteSuccess, failedDelete);
+    }
 })
 
 .controller('accountTabCtrl', function($scope) {
@@ -108,7 +132,7 @@ angular.module('app.controllers', [])
 
     refreshProducts();
 
-    $scope.selectedProduct = {barCode:0, title:"", unitPrice:0, count:1};
+    $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, count:1};
     $scope.selectedStore = {selected:""};
 
     updateSelected = function(product) {
@@ -138,7 +162,7 @@ angular.module('app.controllers', [])
           }
 
           if (!bFind) {
-            $scope.selectedProduct = {barCode:0, title:"", unitPrice:0, count:1};
+            $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, count:1};
           }
       }
     });
@@ -215,5 +239,36 @@ angular.module('app.controllers', [])
     $scope.login = function(userName, password) {
         UtilService.showLoading();
         AccountService.login(userName, password, loginSuccess, loginFailed);
+    };
+})
+
+.controller('editProductCtrl', function($scope, $state, UtilService, ProductService) {
+    $scope.hasEditProduct = ProductService.hasEditProduct();
+
+    if ($scope.hasEditProduct)
+    {
+        $scope.product = ProductService.getEditProduct();
+    } else {
+        $scope.product = {barCode:"", title:"", unitPrice:0, left:0};
+    }
+
+    saveProductSuccess = function(product) {
+        UtilService.hideLoading();
+        UtilService.showResult("提交成功", true);
+        $state.go('tabs.stores');
+    };
+
+    saveProductFailed = function(data, status) {
+        UtilService.hideLoading();
+        UtilService.httpFailed(data, status);
+    };
+
+    $scope.saveProduct = function(product) {
+        UtilService.showLoading();
+        if (ProductService.hasEditProduct()) {
+            ProductService.updateProduct(product, saveProductSuccess, saveProductFailed);
+        } else {
+            ProductService.addProduct(product, saveProductSuccess, saveProductFailed);
+        }
     };
 })

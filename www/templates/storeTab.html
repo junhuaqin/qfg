@@ -1,5 +1,5 @@
 <ion-view title="库存" class=" ">
-  <ion-floating-button click="addSaleItem()" has-footer="true" button-color="#2AC9AA" icon="ion-plus" icon-color="#fff">
+  <ion-floating-button click="addProduct()" has-footer="true" button-color="#2AC9AA" icon="ion-plus" icon-color="#fff">
   </ion-floating-button>
   <ion-content padding="true" class="">
       <div class="list list-inset">
@@ -8,7 +8,7 @@
           <input type="text" placeholder="Search" ng-model="search">
         </label>
       </div>
-    <ion-list class="card">
+    <ion-list type="card">
         <ion-item class="row" style="background-color: #d1d1d1;">
           <div class="col col-30">产品码</div>
           <div class="col col-50">名称</div>
@@ -29,8 +29,11 @@
               <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
           </div>
-          <ion-option-button class="button-assertive" ng-click="remove(chat)">
+          <ion-option-button class="button-assertive" ng-click="deleteProduct(item)">
             删除
+          </ion-option-button>
+          <ion-option-button class="button-info" ng-click="editProduct(item)">
+            编辑
           </ion-option-button>
         </ion-item>
       </ion-list>

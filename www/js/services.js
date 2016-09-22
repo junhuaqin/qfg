@@ -104,7 +104,7 @@ angular.module('app.services', [])
 /*  var products = [{barCode:123, title:"高压锅", unitPrice:4200, left:12}];*/
 
   this.getStore = function(sucCallBack, errCallBack) {
-      BackgroundService.get("/products", { cache: true })
+      BackgroundService.get("/products")
            .success(function(response) {
               angular.forEach(response, function(product){
                 product.unitPrice /= 100;
@@ -123,6 +123,47 @@ angular.module('app.services', [])
                })
                .error(errCallBack);
       }
+  };
+
+  this.addProduct = function(product, sucCallBack, errCallBack) {
+      product.unitPrice *= 100;
+      BackgroundService.post("/products/add", product)
+        .success(function(response) {
+            response.unitPrice /= 100;
+            sucCallBack(response);
+        })
+        .error(errCallBack);
+  };
+
+  this.updateProduct = function(product, sucCallBack, errCallBack) {
+        product.unitPrice *= 100;
+        BackgroundService.put("/products/"+product.barCode, product)
+          .success(function(response) {
+              response.unitPrice /= 100;
+              sucCallBack(response);
+          })
+          .error(errCallBack);
+  };
+
+  this.deleteProduct = function(product, sucCallBack, errCallBack) {
+      BackgroundService.delete("/products/"+product.barCode)
+        .success(function(response) {
+            sucCallBack(product);
+        })
+        .error(errCallBack);
+  };
+
+  var editProduct = {barCode:"", title:"", unitPrice:0, left:0};
+  this.setEditProduct = function(product) {
+      editProduct = product;
+  };
+
+  this.getEditProduct = function() {
+    return editProduct;
+  };
+
+  this.hasEditProduct = function() {
+    return editProduct.barCode.length != 0;
   };
 })
 
@@ -154,6 +195,8 @@ angular.module('app.services', [])
     $http.defaults.headers.common.Authorization = userName+":"+password;
   };
 
+  this.setAuth("admin", "admin");
+
   this.get = function() {
     var len= arguments.length;
     if(len == 2) {
@@ -165,6 +208,14 @@ angular.module('app.services', [])
 
   this.post = function(url, data) {
     return $http.post(backend+url, data);
+  };
+
+  this.put = function(url, data) {
+    return $http.put(backend+url, data);
+  };
+
+  this.delete = function(url) {
+    return $http.delete(backend+url);
   };
 })
 
