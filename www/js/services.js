@@ -141,7 +141,7 @@ angular.module('app.services', [])
   this.attemptLogin = function(sucCallBack, errCallBack) {
     var loginUser = locals.getObject("account");
     if (angular.isDefined(loginUser.userName)) {
-        login(loginUser.userName, loginUser.password, sucCallBack, errCallBack);
+        this.login(loginUser.userName, loginUser.password, sucCallBack, errCallBack);
     } else {
         errCallBack("unauthorized");
     }
