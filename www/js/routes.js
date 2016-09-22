@@ -21,7 +21,7 @@ angular.module('app.routes', [])
   })
 
   .state('tabs.saleItem', {
-    url: '/saleitem/:code',
+    url: '/saleitem',
     views: {
       'sales': {
         templateUrl: 'templates/saleItem.html',

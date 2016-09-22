@@ -1,6 +1,12 @@
 <ion-view title="产品信息" class=" ">
+    <ion-floating-button click="putItem()" has-footer="true" button-color="#2AC9AA" icon="ion-checkmark-round" icon-color="#fff">
+    </ion-floating-button>
+  <ion-nav-buttons side="right">
+    <button class="button button-small button-icon icon ion-qr-scanner" ng-click="scanBarcode()">
+      扫一扫
+    </button>
+  </ion-nav-buttons>
     <ion-content padding="true" class="has-header">
-
         <form>
             <div  class="list card">
             <span class="item item-input item-input-wrapper" style='overflow: visible;z-index:3;'>
@@ -11,7 +17,7 @@
             </span>
             <label class="item item-input ">
               <span class="input-label">编码</span>
-              <input type="number" ng-disabled="true" ng-model="selectedProduct.barCode">
+              <input type="text" ng-disabled="true" ng-model="selectedProduct.barCode">
             </label>
             <label class="item item-input ">
                 <span class="input-label">名称</span>
@@ -25,10 +31,6 @@
                 <span class="input-label">数量</span>
                 <input type="number" ng-model="selectedProduct.count">
             </label>
-            </div>
-            <div class=" button-bar ">
-                <button class=" button button-positive  button-block icon ion-android-checkmark-circle " ng-click="putItem()" ng-disabled="selectedProduct.barCode===0 || selectedProduct.count<=0">确定</button>
-                <button class=" button button-positive  button-block button-outline icon ion-android-close " ui-sref="tabs.sales">取消</button>
             </div>
         </form>
     </ion-content>

@@ -1,43 +1,38 @@
 <ion-view title="库存" class=" ">
-    <ion-content padding="true" class="has-header">
+  <ion-floating-button click="addSaleItem()" has-footer="true" button-color="#2AC9AA" icon="ion-plus" icon-color="#fff">
+  </ion-floating-button>
+  <ion-content padding="true" class="">
       <div class="list list-inset">
         <label class="item item-input">
           <i class="icon ion-search placeholder-icon"></i>
           <input type="text" placeholder="Search" ng-model="search">
         </label>
       </div>
-      <div class="card">
-        <div class="row" style="background-color: #d1d1d1;">
+    <ion-list class="card">
+        <ion-item class="row" style="background-color: #d1d1d1;">
           <div class="col col-30">产品码</div>
-          <div class="col col-40">名称</div>
+          <div class="col col-50">名称</div>
           <div class="col" style="text-align:right;">库存</div>
-        </div>
-        <div ng-repeat="item in products | filter:search | orderBy:'left'">
+        </ion-item>
+        <ion-item class="item-text-wrap" ng-repeat="item in products | filter:search | orderBy:'left'">
           <div class= "assertive" ng-if="item.left<5">
-            <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
+            <div class="row">
               <div class="col col-30">{{item.barCode}}</div>
-              <div class="col col-40">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.left}}</div>
-            </div>
-            <div class="row" ng-if="$even">
-              <div class="col col-30">{{item.barCode}}</div>
-              <div class="col col-40">{{item.title}}</div>
+              <div class="col col-60">{{item.title}}</div>
               <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
           </div>
           <div ng-if="item.left>=5">
-            <div class="row" ng-if="$odd" style="background-color: #f5f5f5;">
+            <div class="row">
               <div class="col col-30">{{item.barCode}}</div>
-              <div class="col col-40">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.left}}</div>
-            </div>
-            <div class="row" ng-if="$even">
-              <div class="col col-30">{{item.barCode}}</div>
-              <div class="col col-40">{{item.title}}</div>
+              <div class="col col-60">{{item.title}}</div>
               <div class="col" style="text-align:right;">{{item.left}}</div>
             </div>
           </div>
-        </div>
-      </div>
+          <ion-option-button class="button-assertive" ng-click="remove(chat)">
+            删除
+          </ion-option-button>
+        </ion-item>
+      </ion-list>
     </ion-content>
 </ion-view>

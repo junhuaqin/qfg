@@ -127,6 +127,8 @@ angular.module('app.services', [])
 })
 
 .service('BackgroundService', function($http, backend){
+  $http.defaults.headers.common.Authorization = "admin:admin";
+
   this.get = function() {
     var len= arguments.length;
     if(len == 2) {

@@ -1,6 +1,6 @@
 angular.module('app.controllers', [])
 
-.controller('saleTabCtrl', function($scope, $state, $cordovaBarcodeScanner, $interval, UtilService, SaleService) {
+.controller('saleTabCtrl', function($scope, $state, $interval, UtilService, SaleService) {
     $scope.sale = {curDay:0, curMonth:0};
     $scope.today = new Date();
     $scope.monthStart = new Date();
@@ -41,19 +41,9 @@ angular.module('app.controllers', [])
 
     $scope.refreshSaleStatics();
 
-    $scope.scanBarcode = function() {
-//        var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
-        $cordovaBarcodeScanner.scan().then(function(imageData) {
-            var index = imageData.text.lastIndexOf('/');
-            if (index < 0) {
-              alert("无效码:"+imageData.text);
-              return;
-            }
-            $state.go('tabs.saleItem', {code:imageData.text.substr(index+1)});
-        }, function(error) {
-            alert("扫码失败: " + error);
-        });
-    };
+    $scope.addSaleItem = function() {
+        $state.go('tabs.saleItem');
+    }
 
     submitSuccess = function(response) {
       UtilService.hideLoading();
@@ -96,7 +86,7 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('saleItemCtrl', function($scope, $state, $stateParams, $http, SaleService, ProductService, UtilService) {
+.controller('saleItemCtrl', function($scope, $state, $cordovaBarcodeScanner, SaleService, ProductService, UtilService) {
     $scope.descriptions = [];
     updateStore = function(products) {
       UtilService.hideLoading();
@@ -127,8 +117,6 @@ angular.module('app.controllers', [])
       $scope.selectedStore.selected = $scope.selectedProduct.barCode+"-"+$scope.selectedProduct.title;
     };
 
-    ProductService.getStoreByQR($stateParams.code, updateSelected);
-
     $scope.putItem = function() {
         SaleService.putSaleItem(angular.copy($scope.selectedProduct));
         $scope.selectedStore = {selected:""};
@@ -157,6 +145,20 @@ angular.module('app.controllers', [])
 
     $scope.clearSearch = function() {
       $scope.selectedStore.selected = "";
+    };
+
+    $scope.scanBarcode = function() {
+        var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
+//        $cordovaBarcodeScanner.scan().then(function(imageData) {
+            var index = imageData.text.lastIndexOf('/');
+            if (index < 0) {
+              alert("无效码:"+imageData.text);
+              return;
+            }
+            ProductService.getStoreByQR(imageData.text.substr(index+1), updateSelected);
+/*        }, function(error) {
+            alert("扫码失败: " + error);
+        });*/
     };
 })
 
