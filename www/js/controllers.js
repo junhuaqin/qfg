@@ -110,8 +110,11 @@ angular.module('app.controllers', [])
     };
 })
 
-.controller('accountTabCtrl', function($scope) {
-
+.controller('accountTabCtrl', function($scope, $state, AccountService) {
+  $scope.logout = function() {
+    AccountService.logout();
+    $state.go('login');
+  };
 })
 
 .controller('saleItemCtrl', function($scope, $state, $cordovaBarcodeScanner, SaleService, ProductService, UtilService) {

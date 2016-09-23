@@ -202,7 +202,12 @@ angular.module('app.services', [])
     } else {
         errCallBack("unauthorized");
     }
-  }
+  };
+
+  this.logout = function() {
+    locals.setObject("account",{});
+    BackgroundService.setAuth("", "");
+  };
 }
 )
 
