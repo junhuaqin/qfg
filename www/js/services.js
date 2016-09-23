@@ -243,12 +243,9 @@ angular.module('app.services', [])
 .service('UtilService', function($ionicPopup, $ionicLoading, $cordovaToast) {
   this.showResult = function(message, success) {
     if (success) {
-      $cordovaToast.showLongCenter(message);
+      this.toast(message);
     } else {
-      $ionicPopup.alert({
-                       title:'错误',
-                       template:message
-                     });
+      this.alert(message)
     }
   };
 
@@ -283,6 +280,17 @@ angular.module('app.services', [])
                       title: '确认',
                       template: msg
            });
+  };
+
+  this.alert = function(msg) {
+    return $ionicPopup.alert({
+                          title: '提示',
+                          template: msg
+            });
+  };
+
+  this.toast = function(msg) {
+    $cordovaToast.showLongCenter(msg);
   };
 })
 

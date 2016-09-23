@@ -148,10 +148,22 @@ angular.module('app.controllers', [])
       $scope.selectedStore.selected = $scope.selectedProduct.barCode+"-"+$scope.selectedProduct.title;
     };
 
+    verifyProduct = function(product) {
+      return (product.barCode.length > 0)
+           &&(product.title.length > 0)
+           &&(product.unitPrice != null)
+           &&(product.unitPrice >= 0)
+           &&(product.count > 0);
+    };
+
     $scope.putItem = function() {
+      if (!verifyProduct($scope.selectedProduct)) {
+        UtilService.alert("请输入正确的产品信息");
+      } else {
         SaleService.putSaleItem(angular.copy($scope.selectedProduct));
         $scope.selectedStore = {selected:""};
         $state.go('tabs.sales');
+      }
     };
 
     $scope.$watch('selectedStore.selected', function() {
@@ -270,12 +282,24 @@ angular.module('app.controllers', [])
         UtilService.httpFailed(data, status);
     };
 
+    verifyProduct = function(product) {
+      return (product.barCode.length > 0)
+           &&(product.title.length > 0)
+           &&(product.unitPrice > 0)
+           &&(product.left != null)
+           &&(product.left >= 0);
+    };
+
     $scope.saveProduct = function(product) {
-        UtilService.showLoading();
-        if (ProductService.hasEditProduct()) {
-            ProductService.updateProduct(product, saveProductSuccess, saveProductFailed);
+        if (!verifyProduct(product)) {
+          UtilService.alert("请输入正确的产品信息");
         } else {
-            ProductService.addProduct(product, saveProductSuccess, saveProductFailed);
+          UtilService.showLoading();
+          if (ProductService.hasEditProduct()) {
+              ProductService.updateProduct(product, saveProductSuccess, saveProductFailed);
+          } else {
+              ProductService.addProduct(product, saveProductSuccess, saveProductFailed);
+          }
         }
     };
 })

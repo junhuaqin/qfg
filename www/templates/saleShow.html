@@ -1,5 +1,5 @@
 <ion-view title="查看销售" class=" ">
-    <ion-content padding="true" class="has-header">
+    <ion-content padding="false" class="has-header">
       <div class="list">
         <label class="item item-input ">
           <span class="input-label">从:</span>
@@ -11,20 +11,22 @@
         </label>
         <button class="item button button-positive  button-block icon ion-android-search" ng-click="getDetail(from, to)">查询</button>
       </div>
-      <div class="list card" ng-repeat="detail in saleDetail">
-        <div class="item calm-bg">
-          <h3>{{detail.date|date:'yyyy-MM-dd'}}
-          <span class="item-note assertive">{{detail.totalPrice|currency:""}}</span></h3>
-        </div>
+      <ion-list ng-repeat="detail in saleDetail">
+        <ion-item class="item-divider dark-bg">
+          <p>{{detail.date|date:'yyyy-MM-dd'}}
+          <span class="item-note">{{detail.totalPrice|currency:""}}</span>
+          </p>
+        </ion-item>
         <div ng-repeat="saleItem in detail.items">
-          <div class="item item-divider">
-            <h3>{{saleItem.sale}} {{saleItem.createdAt|date:'HH:mm:ss'}}
-            <span class="item-note assertive">{{saleItem.totalPrice|currency:""}}</span></h3>
-          </div>
-          <div class="item" ng-repeat="productItem in saleItem.items">
-            {{productItem.title}}<span class="item-note">{{productItem.unitPrice|currency:""}}*{{productItem.count}}</span>
-          </div>
+          <ion-item class="item-divider">
+            {{saleItem.createdAt|date:'HH:mm:ss'}} {{saleItem.sale}}
+            <span class="item-note">{{saleItem.totalPrice|currency:""}}</span>
+          </ion-item>
+          <ion-item ng-repeat="productItem in saleItem.items">
+              {{productItem.title}}
+              <span class="item-note">{{productItem.unitPrice|currency:""}}*{{productItem.count}}</span>
+          </ion-item>
         </div>
-      </div>
+      </ion-list>
     </ion-content>
 </ion-view>
