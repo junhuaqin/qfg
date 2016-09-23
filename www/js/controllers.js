@@ -92,7 +92,6 @@ angular.module('app.controllers', [])
 
     deleteSuccess = function(product) {
         UtilService.hideLoading();
-        refreshStores();
     };
 
     failedDelete = function(data, status) {

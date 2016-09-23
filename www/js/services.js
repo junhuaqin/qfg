@@ -50,6 +50,10 @@ angular.module('app.services', [])
     };
 
   this.submitSaleItems = function(sucCallBack, errCallBack) {
+        if (saleItems.length <= 0) {
+          return;
+        }
+
         var postItem = angular.copy(saleItems);
         postItem.totalPrice *= 100;
         angular.forEach(postItem.items, function(item) {
@@ -101,17 +105,22 @@ angular.module('app.services', [])
 })
 
 .service('ProductService', function(BackgroundService){
-/*  var products = [{barCode:123, title:"高压锅", unitPrice:4200, left:12}];*/
+  var products = [];
 
   this.getStore = function(sucCallBack, errCallBack) {
-      BackgroundService.get("/products")
+      if (products.length > 0) {
+        sucCallBack(products);
+      } else {
+        BackgroundService.get("/products")
            .success(function(response) {
               angular.forEach(response, function(product){
                 product.unitPrice /= 100;
               });
-              sucCallBack(response);
+              products = response;
+              sucCallBack(products);
            })
            .error(errCallBack);
+      }
   };
 
   this.getStoreByQR = function(qrCode, sucCallBack, errCallBack) {
@@ -130,6 +139,7 @@ angular.module('app.services', [])
       BackgroundService.post("/products/add", product)
         .success(function(response) {
             response.unitPrice /= 100;
+            products.push(response);
             sucCallBack(response);
         })
         .error(errCallBack);
@@ -140,6 +150,7 @@ angular.module('app.services', [])
         BackgroundService.put("/products/"+product.barCode, product)
           .success(function(response) {
               response.unitPrice /= 100;
+              product.unitPrice /= 100;
               sucCallBack(response);
           })
           .error(errCallBack);
@@ -148,7 +159,8 @@ angular.module('app.services', [])
   this.deleteProduct = function(product, sucCallBack, errCallBack) {
       BackgroundService.delete("/products/"+product.barCode)
         .success(function(response) {
-            sucCallBack(product);
+            products.splice(products.indexOf(product), 1);
+            sucCallBack(response);
         })
         .error(errCallBack);
   };
@@ -161,6 +173,10 @@ angular.module('app.services', [])
   this.getEditProduct = function() {
     return editProduct;
   };
+
+  this.clearEditProduct = function() {
+    editProduct = {barCode:"", title:"", unitPrice:0, left:0};
+  }
 
   this.hasEditProduct = function() {
     return editProduct.barCode.length != 0;
