@@ -235,24 +235,21 @@ angular.module('app.services', [])
   };
 })
 
-.service('UtilService', function($ionicPopup, $ionicLoading) {
+.service('UtilService', function($ionicPopup, $ionicLoading, $cordovaToast) {
   this.showResult = function(message, success) {
-    var temp = '<a class="item-icon-left">'
     if (success) {
-      temp += '<i class="icon ion-checkmark-round positive"></i>'+message+'</a>';
+      $cordovaToast.showLongCenter(message);
     } else {
-      temp += '<i class="icon ion-android-close assertive"></i>'+message+'</a>'
-    }
-
-    $ionicPopup.alert({
-                       title:'提示',
-                       template:temp
+      $ionicPopup.alert({
+                       title:'错误',
+                       template:message
                      });
+    }
   };
 
   this.httpFailed = function(data,status){
     if (400 == status) {
-      this.showResult(data, false);
+      this.showResult(data.err, false);
     } else if (404 == status) {
       this.showResult("内部错误", false);
     } else if (0 == status) {
@@ -274,6 +271,13 @@ angular.module('app.services', [])
 
   this.hideLoading = function() {
     $ionicLoading.hide();
+  };
+
+  this.confirm = function(msg) {
+    return $ionicPopup.confirm({
+                      title: '确认',
+                      template: msg
+           });
   };
 })
 

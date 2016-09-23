@@ -21,7 +21,7 @@ angular.module('app', ['ionic', 'ngCordova', 'ion-floating-menu', 'autocomplete'
     }
   });
 })
-.constant('backend', '/ctu/v1')
+.constant('backend', '/ctu/v1') //http://52.197.213.21
 .config(function($ionicConfigProvider) {
     $ionicConfigProvider.tabs.position('bottom');
 })

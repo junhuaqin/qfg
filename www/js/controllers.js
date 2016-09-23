@@ -100,9 +100,14 @@ angular.module('app.controllers', [])
     };
 
     $scope.deleteProduct = function(product) {
-        UtilService.showLoading();
-        ProductService.deleteProduct(product, deleteSuccess, failedDelete);
-    }
+      UtilService.confirm('确定要删除该产品吗?')
+        .then(function(res) {
+             if(res) {
+               UtilService.showLoading();
+               ProductService.deleteProduct(product, deleteSuccess, failedDelete);
+             }
+      });
+    };
 })
 
 .controller('accountTabCtrl', function($scope) {
