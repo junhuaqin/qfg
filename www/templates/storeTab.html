@@ -9,26 +9,13 @@
         </label>
       </div>
     <ion-list>
-        <ion-item class="row" style="background-color: #d1d1d1;">
-          <div class="col col-30">产品码</div>
-          <div class="col col-50">名称</div>
-          <div class="col" style="text-align:right;">库存</div>
-        </ion-item>
-        <ion-item class="item-text-wrap" ng-repeat="item in products | filter:search | orderBy:'left'">
-          <div class= "assertive" ng-if="item.left<5">
-            <div class="row">
-              <div class="col col-30">{{item.barCode}}</div>
-              <div class="col col-60">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.left}}</div>
-            </div>
-          </div>
-          <div ng-if="item.left>=5">
-            <div class="row">
-              <div class="col col-30">{{item.barCode}}</div>
-              <div class="col col-60">{{item.title}}</div>
-              <div class="col" style="text-align:right;">{{item.left}}</div>
-            </div>
-          </div>
+        <ion-item ng-repeat="item in products | filter:search | orderBy:'left'">
+          <h2>{{item.title}}</h2>
+          <span class="badge badge-assertive" ng-if="item.left<5">{{item.left}}</span>
+          <span class="badge" ng-if="item.left>=5">{{item.left}}</span>
+          <p>{{item.barCode}}
+            <span class="item-note">{{item.unitPrice|currency:""}}</span>
+          </p>
           <ion-option-button class="button-info" ng-click="editProduct(item)">
             编辑
           </ion-option-button>
