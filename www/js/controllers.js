@@ -384,7 +384,7 @@ angular.module('app.controllers', [])
           text: '<b>OK</b>',
           type: 'button-positive',
           onTap: function(e) {
-            if (!$scope.data.amount) {
+            if (!$scope.data.amount || $scope.data.amount < 0) {
               //don't allow the user to close unless he enters wifi password
               e.preventDefault();
             } else {
@@ -402,14 +402,24 @@ angular.module('app.controllers', [])
     });
   };
 
+  deleteSuccess = function(item) {
+     UtilService.hideLoading();
+     $scope.purchase.splice($scope.purchase.indexOf(item), 1);
+   };
+
+  failedDelete = function(data, status) {
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
   $scope.deleteItem = function(item) {
     UtilService.confirm('确定要删除该产品吗?')
         .then(function(res) {
              if(res) {
                UtilService.showLoading();
-               PurchaseService.deleteItem(item, deleteSuccess, failedDelete);
+               PurchaseService.deleteItem($scope.purchase, item, deleteSuccess, failedDelete);
              }
       });
-    };
   };
+
 })

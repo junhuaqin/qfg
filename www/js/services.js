@@ -267,6 +267,14 @@ angular.module('app.services', [])
       })
       .error(errCallBack);
   };
+
+  this.deleteItem = function(purchase, item, sucCallBack, errCallBack) {
+    BackgroundService.delete("/purchases/"+purchase.id+"/deleteItem/"+item.id)
+        .success(function(response) {
+                  sucCallBack(item);
+        })
+        .error(errCallBack);
+  };
 })
 
 .service('BackgroundService', function($http, backend){
