@@ -9,16 +9,13 @@
     </ion-refresher>
     <ion-list>
       <ion-item ng-repeat="item in purchases" ng-click="showDetail(item)">
-        <h2>{{item.createdAt | date:'yyyy-MM-dd HH:mm:ss'}}</h2>
+        <h2>{{item.createdAt | date:'yyyy-MM-dd HH:mm:ss'}} {{item.purchaseOrderId}}</h2>
         <span class="badge badge-assertive" ng-if="item.amountConfirmed != item.amount">{{item.amountConfirmed}}/{{item.amount}}</span>
         <span class="badge" ng-if="item.amountConfirmed == item.amount">{{item.amountConfirmed}}/{{item.amount}}</span>
         <p>{{item.sale}}
           <span class="item-note" ng-if="isAdmin">{{item.totalPrice|currency:""}}</span>
         </p>
-        <ion-option-button class="button-balanced" ng-if="isAdmin" ng-click="">
-          编辑
-        </ion-option-button>
-        <ion-option-button class="button-assertive" ng-if="isAdmin" ng-click="">
+        <ion-option-button class="button-assertive" ng-if="(!item.amountConfirmed)&&isAdmin" ng-click="">
           删除
         </ion-option-button>
       </ion-item>

@@ -404,7 +404,7 @@ angular.module('app.controllers', [])
 
   deleteSuccess = function(item) {
      UtilService.hideLoading();
-     $scope.purchase.splice($scope.purchase.indexOf(item), 1);
+     $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
    };
 
   failedDelete = function(data, status) {

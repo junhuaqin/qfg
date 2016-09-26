@@ -222,7 +222,10 @@ angular.module('app.services', [])
   this.getPurchases = function(sucCallBack, errCallBack) {
     BackgroundService.get("/purchases")
       .success(function(response) {
-                sucCallBack(response);
+        angular.forEach(response, function(purchase){
+          purchase.totalPrice /= 100;
+        });
+        sucCallBack(response);
       })
       .error(errCallBack);
   };
