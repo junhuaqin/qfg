@@ -82,6 +82,7 @@ angular.module('app.controllers', [])
     refreshStores();
 
     $scope.addProduct = function() {
+        ProductService.clearEditProduct();
         $state.go('tabs.productItem');
     };
 
@@ -143,9 +144,11 @@ angular.module('app.controllers', [])
     $scope.selectedStore = {selected:""};
 
     updateSelected = function(product) {
-      $scope.selectedProduct = product;
-      $scope.selectedProduct.count = 1;
-      $scope.selectedStore.selected = $scope.selectedProduct.barCode+"-"+$scope.selectedProduct.title;
+      if (!product) {
+        UtilService.alert("未找到产品信息");
+      } else {
+        $scope.selectedStore.selected = product.barCode+"-"+product.title;
+      }
     };
 
     verifyProduct = function(product) {
@@ -190,15 +193,19 @@ angular.module('app.controllers', [])
       $scope.selectedStore.selected = "";
     };
 
+    failedGetByQR = function(data, status) {
+      UtilService.httpFailed(data, status);
+    };
+
     $scope.scanBarcode = function() {
-//        var imageData = {text:"http://www.tbh.cn/member/product/111224140833"};
+//        var imageData = {text:"http://www.tbh.cn/member/product/111224140834"};//111224140833
         $cordovaBarcodeScanner.scan().then(function(imageData) {
             var index = imageData.text.lastIndexOf('/');
             if (index < 0) {
               alert("无效码:"+imageData.text);
               return;
             }
-            ProductService.getStoreByQR(imageData.text.substr(index+1), updateSelected);
+            ProductService.getStoreByQR(imageData.text.substr(index+1), updateSelected, failedGetByQR);
         }, function(error) {
             alert("扫码失败: " + error);
         });
