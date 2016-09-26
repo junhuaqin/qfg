@@ -310,3 +310,106 @@ angular.module('app.controllers', [])
         }
     };
 })
+
+.controller('purchaseTabCtrl', function($scope, $state, UtilService, AccountService, PurchaseService) {
+  $scope.isAdmin = AccountService.isAdmin();
+
+  loadPurchaseSuccess = function(purchases) {
+    $scope.$broadcast('scroll.refreshComplete');
+    UtilService.hideLoading();
+    $scope.purchases = purchases;
+  };
+
+  loadPurchaseFailed = function(data, status) {
+    $scope.$broadcast('scroll.refreshComplete');
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  $scope.loadPurchase = function() {
+    UtilService.showLoading();
+    PurchaseService.getPurchases(loadPurchaseSuccess, loadPurchaseFailed);
+  };
+
+  $scope.loadPurchase();
+
+  $scope.showDetail = function(purchase) {
+    PurchaseService.setShowDetailPurchase(purchase);
+    $state.go('tabs.purchaseDetail');
+  };
+})
+
+.controller('purchaseDetailCtrl', function($scope, $ionicPopup, UtilService, AccountService, PurchaseService) {
+  $scope.isAdmin = AccountService.isAdmin();
+
+  loadDetailSuccess = function(purchase) {
+    $scope.$broadcast('scroll.refreshComplete');
+    UtilService.hideLoading();
+    $scope.purchase = purchase;
+  };
+
+  loadDetailFailed = function(data, status) {
+    $scope.$broadcast('scroll.refreshComplete');
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  $scope.loadDetail = function() {
+    UtilService.showLoading();
+    PurchaseService.getPurchaseById(PurchaseService.getShowDetailPurchase().id, loadDetailSuccess, loadDetailFailed);
+  };
+
+  $scope.loadDetail();
+
+  confirmSuccess = function() {
+    UtilService.hideLoading();
+    $scope.loadDetail();
+  };
+
+  confirmFailed = function(data, status) {
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  $scope.confirm = function(item) {
+    $scope.data = {};
+    var myPopup = $ionicPopup.show({
+      template: '<input type="number" ng-model="data.amount">',
+      title: '请输入收货数量',
+      subTitle: '<div class="assertive">确认后不能修改,请仔细确认数量是否正确。</div>',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: '<b>OK</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            if (!$scope.data.amount) {
+              //don't allow the user to close unless he enters wifi password
+              e.preventDefault();
+            } else {
+              return $scope.data.amount;
+            }
+          }
+        }
+      ]
+    });
+
+    myPopup.then(function(res) {
+      if (res) {
+        PurchaseService.confirm(item.id, res, confirmSuccess, confirmFailed);
+      }
+    });
+  };
+
+  $scope.deleteItem = function(item) {
+    UtilService.confirm('确定要删除该产品吗?')
+        .then(function(res) {
+             if(res) {
+               UtilService.showLoading();
+               PurchaseService.deleteItem(item, deleteSuccess, failedDelete);
+             }
+      });
+    };
+  };
+})

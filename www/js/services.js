@@ -184,12 +184,15 @@ angular.module('app.services', [])
 })
 
 .service('AccountService', function(BackgroundService, locals){
+  var is_admin = false;
+
   this.login = function(user, password, sucCallBack, errCallBack) {
     var postUser = {userName:user, password:password};
     BackgroundService.post("/users/login", postUser)
         .success(function(response) {
             locals.setObject("account", postUser);
             BackgroundService.setAuth(user, password);
+            is_admin = (response.roleId == 1);
             sucCallBack(response);
         })
         .error(errCallBack);
@@ -208,8 +211,63 @@ angular.module('app.services', [])
     locals.setObject("account",{});
     BackgroundService.setAuth("", "");
   };
+
+  this.isAdmin = function() {
+    return is_admin;
+  };
 }
 )
+
+.service('PurchaseService', function(BackgroundService){
+  this.getPurchases = function(sucCallBack, errCallBack) {
+    BackgroundService.get("/purchases")
+      .success(function(response) {
+                sucCallBack(response);
+      })
+      .error(errCallBack);
+  };
+
+  var showDetailPurchase;
+  this.setShowDetailPurchase = function(purchase) {
+    showDetailPurchase = purchase;
+  };
+
+  this.getShowDetailPurchase = function() {
+    return showDetailPurchase;
+  };
+
+  this.getPurchaseById = function(id, sucCallBack, errCallBack) {
+    BackgroundService.get("/purchases/"+id)
+      .success(function(response) {
+                sucCallBack(response);
+      })
+      .error(errCallBack);
+  };
+
+  this.getPurchaseItems = function(id, sucCallBack, errCallBack) {
+    BackgroundService.get("/purchases/"+id+"/allItems")
+      .success(function(response) {
+                sucCallBack(response);
+      })
+      .error(errCallBack);
+  };
+
+  this.getPurchaseConfirms = function(id, sucCallBack, errCallBack) {
+    BackgroundService.get("/purchases/"+id+"/allConfirms")
+      .success(function(response) {
+                sucCallBack(response);
+      })
+      .error(errCallBack);
+  };
+
+  this.confirm = function(id, count, sucCallBack, errCallBack) {
+    BackgroundService.post("/purchases/"+id+"/confirm", {amount:count})
+      .success(function(response) {
+                sucCallBack(response);
+      })
+      .error(errCallBack);
+  };
+})
 
 .service('BackgroundService', function($http, backend){
   this.setAuth = function(userName, password) {

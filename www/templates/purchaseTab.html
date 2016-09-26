@@ -1,0 +1,27 @@
+<ion-view title="进货" class=" ">
+  <ion-floating-button click="addPurchase()" has-footer="true" button-color="#2AC9AA" icon="ion-plus" icon-color="#fff" ng-show="isAdmin">
+  </ion-floating-button>
+  <ion-content padding="false" class="">
+    <ion-refresher on-refresh="loadPurchase()"
+                   pulling-text="下拉刷新"
+                   refreshing-text="刷新中..."
+                   refreshing-icon="ion-loading-b">
+    </ion-refresher>
+    <ion-list>
+      <ion-item ng-repeat="item in purchases" ng-click="showDetail(item)">
+        <h2>{{item.createdAt | date:'yyyy-MM-dd HH:mm:ss'}}</h2>
+        <span class="badge badge-assertive" ng-if="item.amountConfirmed != item.amount">{{item.amountConfirmed}}/{{item.amount}}</span>
+        <span class="badge" ng-if="item.amountConfirmed == item.amount">{{item.amountConfirmed}}/{{item.amount}}</span>
+        <p>{{item.sale}}
+          <span class="item-note" ng-if="isAdmin">{{item.totalPrice|currency:""}}</span>
+        </p>
+        <ion-option-button class="button-balanced" ng-if="isAdmin" ng-click="">
+          编辑
+        </ion-option-button>
+        <ion-option-button class="button-assertive" ng-if="isAdmin" ng-click="">
+          删除
+        </ion-option-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

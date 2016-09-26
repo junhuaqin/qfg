@@ -60,6 +60,26 @@ angular.module('app.routes', [])
     }
   })
 
+  .state('tabs.purchases', {
+    url: '/purchases',
+    views: {
+      'purchases': {
+        templateUrl: 'templates/purchaseTab.html',
+        controller: 'purchaseTabCtrl'
+      }
+    }
+  })
+
+  .state('tabs.purchaseDetail', {
+    url: '/purchaseDetail',
+    views: {
+      'purchases': {
+        templateUrl: 'templates/purchaseDetail.html',
+        controller: 'purchaseDetailCtrl'
+      }
+    }
+  })
+
   .state('tabs.account', {
     url: '/account',
     views: {

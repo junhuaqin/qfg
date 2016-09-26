@@ -1,0 +1,42 @@
+<ion-view title="进货详情" class=" ">
+  <ion-floating-button click="addItem()" has-footer="true" button-color="#2AC9AA" icon="ion-plus" icon-color="#fff" ng-show="isAdmin">
+  </ion-floating-button>
+  <ion-content padding="false" class="">
+    <ion-refresher on-refresh="loadDetail()"
+                   pulling-text="下拉刷新"
+                   refreshing-text="刷新中..."
+                   refreshing-icon="ion-loading-b">
+    </ion-refresher>
+    <ion-list>
+      <ion-item class="item-divider">
+        <h2>{{purchase.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</h2>
+        <span class="badge badge-assertive" ng-if="purchase.amountConfirmed != purchase.amount">{{purchase.amountConfirmed}}/{{purchase.amount}}</span>
+        <span class="badge" ng-if="purchase.amountConfirmed==purchase.amount">{{purchase.amountConfirmed}}/{{purchase.amount}}</span>
+        <p>{{purchase.sale}}
+          <span class="item-note" ng-if="isAdmin">{{purchase.totalPrice|currency:""}}</span>
+        </p>
+      </ion-item>
+      <ion-item ng-repeat="item in purchase.items">
+        <h2>{{item.title}}</h2>
+        <span class="badge badge-assertive" ng-if="item.amountConfirmed != item.amount">{{item.amountConfirmed}}/{{item.amount}}</span>
+        <span class="badge" ng-if="item.amountConfirmed == item.amount">{{item.amountConfirmed}}/{{item.amount}}</span>
+        <p>{{item.barCode}}
+          <span class="item-note" ng-if="isAdmin">{{item.unitPrice|currency:""}}</span>
+        </p>
+        <p ng-repeat="confirm in item.confirms">
+          {{confirm.confirmAt|date:'yyyy-MM-dd HH:mm:ss'}} {{confirm.sale}}
+          <span class="item-note">{{confirm.amount}}</span>
+        </p>
+        <ion-option-button class="button-balanced" ng-if="isAdmin" ng-click="">
+          编辑
+        </ion-option-button>
+        <ion-option-button class="button-positive" ng-click="confirm(item)">
+          收货
+        </ion-option-button>
+        <ion-option-button class="button-assertive" ng-if="isAdmin" ng-click="">
+          删除
+        </ion-option-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
