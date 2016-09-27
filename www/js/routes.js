@@ -110,6 +110,16 @@ angular.module('app.routes', [])
     }
   })
 
+  .state('tabs.modifyPassword', {
+    url: '/modifyPassword',
+    views: {
+      'account': {
+        templateUrl: 'templates/modifyPassword.html',
+        controller: 'modifyPasswordCtrl'
+      }
+    }
+  })
+
   .state('tabs', {
     url: '/tabs',
     templateUrl: 'templates/tabs.html',

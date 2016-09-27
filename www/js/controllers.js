@@ -1,4 +1,14 @@
 angular.module('app.controllers', [])
+.controller('AppCtrl', function($scope, $state, UtilService, AUTH_EVENTS) {
+
+  $scope.$on(AUTH_EVENTS.notAuthorized, function(event) {
+    UtilService.alert('无权访问改资源');
+  });
+
+  $scope.$on(AUTH_EVENTS.notAuthenticated, function(event) {
+    $state.go('login');
+  });
+})
 
 .controller('saleTabCtrl', function($scope, $state, $interval, UtilService, SaleService) {
     $scope.sale = {curDay:0, curMonth:0};
@@ -16,14 +26,16 @@ angular.module('app.controllers', [])
 
     updateSaleStatics = function(saleStatics) {
 //      UtilService.hideLoading();
-      var mStep = saleStatics.curMonth / 10;
+/*      var mStep = saleStatics.curMonth / 10;
       var tStep = saleStatics.curDay / 10;
-      $scope.sale = {curDay:0, curMonth:0};
+      $scope.sale.curDay = 0;
+      $scope.sale.curMonth = 0;
+
       $interval(function(){
          $scope.sale.curDay += tStep;
          $scope.sale.curMonth += mStep;
       },100, 10);
-
+*/
       $scope.sale = saleStatics;
       $scope.$broadcast('scroll.refreshComplete');
     };
@@ -119,6 +131,32 @@ angular.module('app.controllers', [])
   $scope.logout = function() {
     AccountService.logout();
     $state.go('login');
+  };
+
+  $scope.modifyPassword = function() {
+    $state.go('tabs.modifyPassword');
+  };
+})
+
+.controller('modifyPasswordCtrl', function($scope, $state, UtilService, AccountService) {
+  changePasswordSuccess = function() {
+    UtilService.hideLoading();
+    UtilService.showResult("修改成功", true);
+  };
+
+  changePasswordFailed = function(data, status) {
+    UtilService.hideLoading();
+    if (401 == status) {
+        UtilService.showResult("用户名或者密码错误", false);
+    } else {
+        UtilService.httpFailed(data, status);
+    }
+  };
+
+  $scope.changePassword = function(password, newPassword) {
+    UtilService.showLoading();
+    AccountService.changePassword(AccountService.getCurrentUser().userName, password, newPassword,
+        changePasswordSuccess, changePasswordFailed);
   };
 })
 

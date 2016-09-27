@@ -1,6 +1,6 @@
 {
-  "name": "qfg",
-  "app_id": "",
+  "name": "销售帮",
+  "app_id": "businessHelper",
   "browsers": [
     {
       "platform": "android",

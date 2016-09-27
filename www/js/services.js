@@ -60,7 +60,7 @@ angular.module('app.services', [])
           item.unitPrice *= 100;
         });
 
-        BackgroundService.post("/orders/add", postItem)
+        BackgroundService.post("/orders", postItem)
               .success(function(response) {
                   sucCallBack(response);
               })
@@ -136,7 +136,7 @@ angular.module('app.services', [])
 
   this.addProduct = function(product, sucCallBack, errCallBack) {
       product.unitPrice *= 100;
-      BackgroundService.post("/products/add", product)
+      BackgroundService.post("/products", product)
         .success(function(response) {
             response.unitPrice /= 100;
             products.push(response);
@@ -185,13 +185,15 @@ angular.module('app.services', [])
 
 .service('AccountService', function(BackgroundService, locals){
   var is_admin = false;
+  saveAccount = function(user, password) {
+    locals.setObject("account", {userName:user, password:password});
+    BackgroundService.setAuth(user, password);
+  };
 
   this.login = function(user, password, sucCallBack, errCallBack) {
-    var postUser = {userName:user, password:password};
-    BackgroundService.post("/users/login", postUser)
+    BackgroundService.post("/users/login", {userName:user, password:password})
         .success(function(response) {
-            locals.setObject("account", postUser);
-            BackgroundService.setAuth(user, password);
+            saveAccount(user, password);
             is_admin = (response.roleId == 1);
             sucCallBack(response);
         })
@@ -207,6 +209,10 @@ angular.module('app.services', [])
     }
   };
 
+  this.getCurrentUser = function() {
+    return locals.getObject("account");
+  };
+
   this.logout = function() {
     locals.setObject("account",{});
     BackgroundService.setAuth("", "");
@@ -214,6 +220,15 @@ angular.module('app.services', [])
 
   this.isAdmin = function() {
     return is_admin;
+  };
+
+  this.changePassword = function(user, password, newPassword, sucCallBack, errCallBack) {
+    BackgroundService.put("/users/changePassword", {userName:user, password:password, newPassword:newPassword})
+        .success(function(response) {
+            saveAccount(user, newPassword);
+            sucCallBack(response);
+        })
+        .error(errCallBack);
   };
 }
 )
@@ -359,7 +374,8 @@ angular.module('app.services', [])
   };
 
   this.httpFailed = function(data,status){
-    if (400 == status) {
+    if (401 == status || 403 == status) {
+    } else if (400 == status) {
       this.showResult(data.err, false);
     } else if (404 == status) {
       this.showResult("内部错误", false);
