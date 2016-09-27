@@ -1,0 +1,39 @@
+<ion-view title="产品信息" class=" ">
+    <ion-floating-button click="submitAddItem(selectedProduct)" has-footer="true" button-color="#2AC9AA" icon="ion-checkmark-round" icon-color="#fff">
+    </ion-floating-button>
+    <ion-content padding="true" class="has-header">
+      <div class="list card">
+        <span class="item item-input item-input-wrapper" style='overflow: visible;z-index:3;'>
+          <i class="icon ion-search placeholder-icon"></i>
+          <autocomplete  data-tap-disabled="true" ng-model="selectedStore.selected" data="descriptions"></autocomplete>
+          <i class="icon ion-close-circled placeholder-icon" style="vertical-align: middle;"
+             on-tap="clearSearch()" ng-if="selectedStore.selected.length"></i>
+        </span>
+        <ion-item class="item-divider">
+          <p>折扣率</p>
+          <span class="badge">{{discount.value/100}}</span>
+        </ion-item>
+        <label class="item range">
+          0
+          <input type="range" min="0" max="100" ng-model="discount.value"/>
+          1
+        </label>
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">编码</span>
+          <input type="text" ng-disabled="true" ng-model="selectedProduct.barCode">
+        </label>
+        <label class="item item-input item-stacked-label">
+            <span class="input-label">名称</span>
+            <input type="text" ng-disabled="true" ng-model="selectedProduct.title">
+        </label>
+        <label class="item item-input item-stacked-label">
+            <span class="input-label">进货单价</span>
+            <input type="number" ng-model="selectedProduct.purchasePrice">
+        </label>
+        <label class="item item-input item-stacked-label">
+            <span class="input-label">数量</span>
+            <input type="number" ng-model="selectedProduct.count">
+        </label>
+      </div>
+    </ion-content>
+</ion-view>

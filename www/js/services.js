@@ -307,6 +307,16 @@ angular.module('app.services', [])
         })
         .error(errCallBack);
   };
+
+  this.addItem = function(purchase, item, sucCallBack, errCallBack) {
+    item.unitPrice *= 100;
+    BackgroundService.post("/purchases/"+purchase.id+"/addItem", item)
+        .success(function(response) {
+                  response.unitPrice /= 100;
+                  sucCallBack(response);
+        })
+        .error(errCallBack);
+  };
 })
 
 .service('BackgroundService', function($http, backend){

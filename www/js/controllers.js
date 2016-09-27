@@ -368,7 +368,7 @@ angular.module('app.controllers', [])
   };
 })
 
-.controller('purchaseDetailCtrl', function($scope, $ionicPopup, UtilService, AccountService, PurchaseService) {
+.controller('purchaseDetailCtrl', function($scope, $ionicPopup, $state, UtilService, AccountService, PurchaseService) {
   $scope.purchase = PurchaseService.getShowDetailPurchase();
   $scope.isAdmin = function() {
     return AccountService.isAdmin();
@@ -459,6 +459,9 @@ angular.module('app.controllers', [])
       });
   };
 
+  $scope.addItem = function() {
+    $state.go('tabs.purchaseItem');
+  };
 })
 
 .controller('purchaseOrderCtrl', function($scope, $state, UtilService, ProductService, PurchaseService) {
@@ -572,4 +575,97 @@ angular.module('app.controllers', [])
       PurchaseService.submitPurchase(purchase, submitSuccess, failedSubmit);
     }
   };
+})
+
+.controller('purchaseItemCtrl', function($scope, $state, UtilService, ProductService, PurchaseService) {
+  $scope.descriptions = [];
+  $scope.purchase = PurchaseService.getShowDetailPurchase();
+  updateStore = function(products) {
+    UtilService.hideLoading();
+    $scope.stores = products;
+    angular.forEach(products, function(product){
+      $scope.descriptions.push(product.barCode+"-"+product.title);
+    });
+  };
+
+  failedRefresh = function(data, status) {
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  refreshProducts = function() {
+    UtilService.showLoading();
+    ProductService.getStore(updateStore, failedRefresh);
+  };
+
+  refreshProducts();
+
+  $scope.discount = {value:58};
+  $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, purchasePrice:0, count:1};
+  $scope.selectedStore = {selected:""};
+
+  verifyProduct = function(product) {
+    return (product.barCode.length > 0)
+         &&(product.title.length > 0)
+         &&(product.purchasePrice != null)
+         &&(product.purchasePrice >= 0)
+         &&(product.count > 0);
+  };
+
+  $scope.$watch('selectedStore.selected', function() {
+    var words = $scope.selectedStore.selected.split('-');
+    if($scope.selectedProduct.barCode != words[0]){
+      var bFind = false;
+      for(var i=0;i<$scope.stores.length;i++){
+        if($scope.stores[i].barCode == words[0]) {
+          $scope.selectedProduct.barCode = $scope.stores[i].barCode;
+          $scope.selectedProduct.title = $scope.stores[i].title;
+          $scope.selectedProduct.unitPrice = $scope.stores[i].unitPrice;
+          $scope.selectedProduct.purchasePrice = $scope.selectedProduct.unitPrice*$scope.discount.value/100;
+          bFind = true;
+          break;
+        }
+      }
+
+      if (!bFind) {
+        $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, purchasePrice:0, count:1};
+      }
+    }
+  });
+
+  $scope.$watch('discount.value', function() {
+    $scope.selectedProduct.purchasePrice = $scope.selectedProduct.unitPrice*$scope.discount.value/100;
+  });
+
+  $scope.clearSearch = function() {
+    $scope.selectedStore.selected = "";
+  };
+
+  failedSubmit = function(data, status) {
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  submitSuccess = function(item) {
+    UtilService.hideLoading();
+    UtilService.showResult("提交成功", true);
+
+    $scope.purchase.amount += item.amount;
+    $scope.purchase.totalPrice += item.amount*(item.unitPrice*100)/100;
+    $scope.purchase.items.push(item);
+
+    $state.go('tabs.purchaseDetail');
+  };
+
+  $scope.submitAddItem = function(product) {
+    if (!verifyProduct(product)) {
+      UtilService.alert("请输入正确的产品信息");
+    } else {
+    PurchaseService.addItem($scope.purchase,
+        {barCode:product.barCode, title:product.title, unitPrice:product.purchasePrice, amount:product.count},
+        submitSuccess,
+        failedSubmit);
+    }
+  };
+
 })
