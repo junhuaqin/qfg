@@ -314,7 +314,7 @@ angular.module('app.services', [])
     $http.defaults.headers.common.Authorization = userName+":"+password;
   };
 
-  this.setAuth("admin", "admin");
+//  this.setAuth("admin", "admin");
 
   this.get = function() {
     var len= arguments.length;

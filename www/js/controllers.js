@@ -358,8 +358,13 @@ angular.module('app.controllers', [])
   };
 
   $scope.remove = function(purchase) {
-    UtilService.showLoading();
-    PurchaseService.remove(purchase, removeSuccess, removeFailed);
+    UtilService.confirm('确定要删除该进货单吗?')
+      .then(function(res) {
+         if(res) {
+            UtilService.showLoading();
+            PurchaseService.remove(purchase, removeSuccess, removeFailed);
+         }
+      });
   };
 })
 
