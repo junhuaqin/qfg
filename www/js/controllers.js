@@ -83,19 +83,21 @@ angular.module('app.controllers', [])
     updateStore = function(products) {
       UtilService.hideLoading();
       $scope.products = products;
+      $scope.$broadcast('scroll.refreshComplete');
     };
 
     failedRefresh = function(data, status) {
       UtilService.hideLoading();
       UtilService.httpFailed(data, status);
+      $scope.$broadcast('scroll.refreshComplete');
     };
 
-    refreshStores = function() {
+    $scope.refreshStores = function(force) {
       UtilService.showLoading();
-      ProductService.getStore(updateStore, failedRefresh);
+      ProductService.getStore(updateStore, failedRefresh, force);
     };
 
-    refreshStores();
+    $scope.refreshStores(false);
 
     $scope.addProduct = function() {
         ProductService.clearEditProduct();
@@ -177,7 +179,7 @@ angular.module('app.controllers', [])
 
     refreshProducts = function() {
       UtilService.showLoading();
-      ProductService.getStore(updateStore, failedRefresh);
+      ProductService.getStore(updateStore, failedRefresh, false);
     };
 
     refreshProducts();
@@ -519,7 +521,7 @@ angular.module('app.controllers', [])
 
   refreshProducts = function() {
     UtilService.showLoading();
-    ProductService.getStore(updateStore, failedRefresh);
+    ProductService.getStore(updateStore, failedRefresh, false);
   };
 
   refreshProducts();
@@ -633,7 +635,7 @@ angular.module('app.controllers', [])
 
   refreshProducts = function() {
     UtilService.showLoading();
-    ProductService.getStore(updateStore, failedRefresh);
+    ProductService.getStore(updateStore, failedRefresh, false);
   };
 
   refreshProducts();

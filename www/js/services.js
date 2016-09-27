@@ -107,8 +107,10 @@ angular.module('app.services', [])
 .service('ProductService', function(BackgroundService){
   var products = [];
 
-  this.getStore = function(sucCallBack, errCallBack) {
-      if (products.length > 0) {
+  this.getStore = function(sucCallBack, errCallBack, force) {
+      var len= arguments.length;
+
+      if ((!force) && (products.length > 0)) {
         sucCallBack(products);
       } else {
         BackgroundService.get("/products")
@@ -366,8 +368,8 @@ angular.module('app.services', [])
 .service('UtilService', function($ionicPopup, $ionicLoading, $cordovaToast) {
   this.showResult = function(message, success) {
     if (success) {
-    //  this.toast(message);
-      this.alert(message);
+      this.toast(message);
+    //  this.alert(message);
     } else {
       this.alert(message);
     }

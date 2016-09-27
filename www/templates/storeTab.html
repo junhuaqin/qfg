@@ -2,12 +2,17 @@
   <ion-floating-button click="addProduct()" has-footer="true" button-color="#2AC9AA" icon="ion-plus" icon-color="#fff">
   </ion-floating-button>
   <ion-content padding="false" class="">
-      <div class="list list-inset">
-        <label class="item item-input">
-          <i class="icon ion-search placeholder-icon"></i>
-          <input type="text" placeholder="Search" ng-model="search">
-        </label>
-      </div>
+    <ion-refresher on-refresh="refreshStores(true)"
+                   pulling-text="下拉刷新"
+                   refreshing-text="刷新中..."
+                   refreshing-icon="ion-loading-b">
+    </ion-refresher>
+    <div class="list list-inset">
+      <label class="item item-input">
+        <i class="icon ion-search placeholder-icon"></i>
+        <input type="text" placeholder="Search" ng-model="search">
+      </label>
+    </div>
     <ion-list>
         <ion-item ng-repeat="item in products | filter:search | orderBy:'left'">
           <h2>{{item.title}}</h2>
