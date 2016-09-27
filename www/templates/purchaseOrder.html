@@ -1,0 +1,68 @@
+<ion-view title="进货单" class=" ">
+    <ion-floating-button click="submitPurchase(purchase)" has-footer="true" button-color="#2AC9AA" icon="ion-checkmark-round" icon-color="#fff">
+    </ion-floating-button>
+
+    <ion-content padding="false" class="has-header">
+
+      <div class="list card">
+        <label class="item item-input item-button-right">
+          <span class="input-label">进货单</span>
+          <input type="text" ng-model="purchase.purchaseOrderId">
+        </label>
+        <ion-item class="item-button-right">
+          添加商品
+          <button class="button button-clear button-positive" ng-if="!addItem.show" ng-click="showAdd()">
+            <i class="icon ion-plus"></i>
+          </button>
+          <button class="button button-clear button-positive" ng-if="addItem.show" ng-click="cancelAdd()">
+            <i class="icon ion-minus"></i>
+          </button>
+        </ion-item>
+        <div ng-show="addItem.show">
+          <span class="item item-input item-input-wrapper" style='overflow: visible;z-index:3;'>
+            <i class="icon ion-search placeholder-icon"></i>
+            <autocomplete  data-tap-disabled="true" ng-model="selectedStore.selected" data="descriptions"></autocomplete>
+            <i class="icon ion-close-circled placeholder-icon" style="vertical-align: middle;"
+               on-tap="clearSearch()" ng-if="selectedStore.selected.length"></i>
+          </span>
+          <ion-item class="item-divider">
+            <p>折扣率</p>
+            <span class="badge">{{discount.value/100}}</span>
+          </ion-item>
+          <label class="item range">
+            0
+              <input type="range" min="0" max="100" ng-model="discount.value"/>
+            1
+          </label>
+          <label class="item item-input">
+              <span class="input-label">进货单价</span>
+              <input type="number" ng-model="selectedProduct.purchasePrice">
+          </label>
+          <label class="item item-input">
+              <span class="input-label">数量</span>
+              <input type="number" ng-model="selectedProduct.count">
+          </label>
+          <ion-item class="item-button-right">
+            <button class="button button-clear button-positive" ng-click="submitAddItem(selectedProduct)" ng-disabled="!verifyProduct(selectedProduct)">
+              <i class="icon ion-checkmark-round"></i>
+            </button>
+          </ion-item>
+        </div>
+      </div>
+      <ion-list>
+        <ion-item class="item-divider">
+          <p class="item-note">总价：{{purchase.totalPrice|currency:""}}</p>
+        </ion-item>
+        <ion-item ng-repeat="item in purchase.items">
+          <h2>{{item.title}}</h2>
+          <span class="badge">{{item.amount}}</span>
+          <p>{{item.barCode}}
+            <span class="item-note">{{item.unitPrice|currency:""}}</span>
+          </p>
+          <ion-option-button class="button-assertive" ng-click="remove(item)">
+            删除
+          </ion-option-button>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+</ion-view>

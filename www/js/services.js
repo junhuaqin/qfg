@@ -219,12 +219,14 @@ angular.module('app.services', [])
 )
 
 .service('PurchaseService', function(BackgroundService){
+  var purchases = [];
   this.getPurchases = function(sucCallBack, errCallBack) {
     BackgroundService.get("/purchases")
       .success(function(response) {
         angular.forEach(response, function(purchase){
           purchase.totalPrice /= 100;
         });
+        purchases = response;
         sucCallBack(response);
       })
       .error(errCallBack);
@@ -242,9 +244,36 @@ angular.module('app.services', [])
   this.getPurchaseById = function(id, sucCallBack, errCallBack) {
     BackgroundService.get("/purchases/"+id)
       .success(function(response) {
+                response.totalPrice /= 100;
+                angular.forEach(response.items, function(item){
+                          item.unitPrice /= 100;
+                });
                 sucCallBack(response);
       })
       .error(errCallBack);
+  };
+
+  this.submitPurchase = function(purchase, sucCallBack, errCallBack) {
+    angular.forEach(purchase.items, function(item){
+              item.unitPrice *= 100;
+    });
+
+    BackgroundService.post("/purchases", purchase)
+      .success(function(response) {
+                response.totalPrice /= 100;
+                purchases.push(response);
+                sucCallBack(response);
+      })
+      .error(errCallBack);
+  };
+
+  this.remove = function(purchase, sucCallBack, errCallBack) {
+    BackgroundService.delete("/purchases/"+purchase.id)
+        .success(function(response) {
+                  purchases.splice(purchases.indexOf(purchase));
+                  sucCallBack(response);
+        })
+        .error(errCallBack);
   };
 
   this.getPurchaseItems = function(id, sucCallBack, errCallBack) {
@@ -312,9 +341,10 @@ angular.module('app.services', [])
 .service('UtilService', function($ionicPopup, $ionicLoading, $cordovaToast) {
   this.showResult = function(message, success) {
     if (success) {
-      this.toast(message);
+    //  this.toast(message);
+      this.alert(message);
     } else {
-      this.alert(message)
+      this.alert(message);
     }
   };
 

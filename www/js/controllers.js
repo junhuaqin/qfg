@@ -63,7 +63,11 @@ angular.module('app.controllers', [])
     };
 })
 
-.controller('storeTabCtrl', function($scope, $state, ProductService, UtilService) {
+.controller('storeTabCtrl', function($scope, $state, AccountService, ProductService, UtilService) {
+    $scope.isAdmin = function() {
+      return AccountService.isAdmin();
+    };
+
     updateStore = function(products) {
       UtilService.hideLoading();
       $scope.products = products;
@@ -312,7 +316,9 @@ angular.module('app.controllers', [])
 })
 
 .controller('purchaseTabCtrl', function($scope, $state, UtilService, AccountService, PurchaseService) {
-  $scope.isAdmin = AccountService.isAdmin();
+  $scope.isAdmin = function() {
+    return AccountService.isAdmin();
+  };
 
   loadPurchaseSuccess = function(purchases) {
     $scope.$broadcast('scroll.refreshComplete');
@@ -337,15 +343,39 @@ angular.module('app.controllers', [])
     PurchaseService.setShowDetailPurchase(purchase);
     $state.go('tabs.purchaseDetail');
   };
+
+  $scope.addPurchase = function() {
+    $state.go('tabs.purchaseOrder');
+  };
+
+  removeSuccess = function(response) {
+    UtilService.hideLoading();
+  };
+
+  removeFailed = function(data, status) {
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  $scope.remove = function(purchase) {
+    UtilService.showLoading();
+    PurchaseService.remove(purchase, removeSuccess, removeFailed);
+  };
 })
 
 .controller('purchaseDetailCtrl', function($scope, $ionicPopup, UtilService, AccountService, PurchaseService) {
-  $scope.isAdmin = AccountService.isAdmin();
+  $scope.purchase = PurchaseService.getShowDetailPurchase();
+  $scope.isAdmin = function() {
+    return AccountService.isAdmin();
+  };
 
   loadDetailSuccess = function(purchase) {
     $scope.$broadcast('scroll.refreshComplete');
     UtilService.hideLoading();
-    $scope.purchase = purchase;
+    $scope.purchase.amount = purchase.amount;
+    $scope.purchase.amountConfirmed = purchase.amountConfirmed;
+    $scope.purchase.totalPrice = purchase.totalPrice;
+    $scope.purchase.items = purchase.items;
   };
 
   loadDetailFailed = function(data, status) {
@@ -356,7 +386,7 @@ angular.module('app.controllers', [])
 
   $scope.loadDetail = function() {
     UtilService.showLoading();
-    PurchaseService.getPurchaseById(PurchaseService.getShowDetailPurchase().id, loadDetailSuccess, loadDetailFailed);
+    PurchaseService.getPurchaseById($scope.purchase.id, loadDetailSuccess, loadDetailFailed);
   };
 
   $scope.loadDetail();
@@ -403,9 +433,11 @@ angular.module('app.controllers', [])
   };
 
   deleteSuccess = function(item) {
-     UtilService.hideLoading();
-     $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
-   };
+    UtilService.hideLoading();
+    $scope.purchase.amount -= item.amount;
+    $scope.purchase.totalPrice -= item.amount*(item.unitPrice*100)/100;
+    $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
+  };
 
   failedDelete = function(data, status) {
     UtilService.hideLoading();
@@ -422,4 +454,117 @@ angular.module('app.controllers', [])
       });
   };
 
+})
+
+.controller('purchaseOrderCtrl', function($scope, $state, UtilService, ProductService, PurchaseService) {
+  $scope.descriptions = [];
+  updateStore = function(products) {
+    UtilService.hideLoading();
+    $scope.stores = products;
+    angular.forEach(products, function(product){
+      $scope.descriptions.push(product.barCode+"-"+product.title);
+    });
+  };
+
+  failedRefresh = function(data, status) {
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  refreshProducts = function() {
+    UtilService.showLoading();
+    ProductService.getStore(updateStore, failedRefresh);
+  };
+
+  refreshProducts();
+
+  $scope.discount = {value:58};
+  $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, purchasePrice:0, count:1};
+  $scope.selectedStore = {selected:""};
+
+  $scope.verifyProduct = function(product) {
+    return (product.barCode.length > 0)
+         &&(product.title.length > 0)
+         &&(product.unitPrice != null)
+         &&(product.unitPrice >= 0)
+         &&(product.count > 0);
+  };
+
+  $scope.$watch('selectedStore.selected', function() {
+    var words = $scope.selectedStore.selected.split('-');
+    if($scope.selectedProduct.barCode != words[0]){
+      var bFind = false;
+      for(var i=0;i<$scope.stores.length;i++){
+        if($scope.stores[i].barCode == words[0]) {
+          $scope.selectedProduct.barCode = $scope.stores[i].barCode;
+          $scope.selectedProduct.title = $scope.stores[i].title;
+          $scope.selectedProduct.unitPrice = $scope.stores[i].unitPrice;
+          $scope.selectedProduct.purchasePrice = $scope.selectedProduct.unitPrice*$scope.discount.value/100;
+          bFind = true;
+          break;
+        }
+      }
+
+      if (!bFind) {
+        $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, purchasePrice:0, count:1};
+      }
+    }
+  });
+
+  $scope.$watch('discount.value', function() {
+    $scope.selectedProduct.purchasePrice = $scope.selectedProduct.unitPrice*$scope.discount.value/100;
+  });
+
+  $scope.clearSearch = function() {
+    $scope.selectedStore.selected = "";
+  };
+
+  $scope.addItem = {show:false};
+  $scope.showAdd = function() {
+    $scope.addItem.show = true;
+  };
+
+  $scope.cancelAdd = function() {
+    $scope.addItem.show = false;
+    $scope.clearSearch();
+  };
+
+  $scope.submitAddItem = function(product) {
+    $scope.addItem.show = false;
+    $scope.purchase.totalPrice += product.purchasePrice*product.count;
+    $scope.purchase.items.push({barCode:product.barCode, title:product.title, unitPrice:product.purchasePrice, amount:product.count});
+    $scope.clearSearch();
+  };
+
+  $scope.purchase = {purchaseOrderId:"", totalPrice:0, items:[]};
+  $scope.remove = function(item) {
+    $scope.purchase.totalPrice -= item.unitPrice*item.amount;
+    $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
+  };
+
+  verifyPurchase = function(purchase) {
+    return purchase.purchaseOrderId.length
+          && purchase.items.length;
+  };
+
+  failedSubmit = function(data, status) {
+    UtilService.hideLoading();
+    UtilService.httpFailed(data, status);
+  };
+
+  submitSuccess = function() {
+    UtilService.hideLoading();
+    $scope.purchase = {purchaseOrderId:"", totalPrice:0, items:[]};
+    UtilService.showResult("提交成功", true);
+    $state.go('tabs.purchases');
+  };
+
+  $scope.submitPurchase = function(purchase) {
+    if(!verifyPurchase(purchase)) {
+      UtilService.alert('请输入完整信息');
+    } else {
+      UtilService.showLoading();
+      PurchaseService.submitPurchase(purchase, submitSuccess, failedSubmit);
+    }
+  };
 })

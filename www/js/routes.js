@@ -80,6 +80,16 @@ angular.module('app.routes', [])
     }
   })
 
+  .state('tabs.purchaseOrder', {
+    url: '/purchaseOrder',
+    views: {
+      'purchases': {
+        templateUrl: 'templates/purchaseOrder.html',
+        controller: 'purchaseOrderCtrl'
+      }
+    }
+  })
+
   .state('tabs.account', {
     url: '/account',
     views: {

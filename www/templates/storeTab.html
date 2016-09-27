@@ -16,10 +16,10 @@
           <p>{{item.barCode}}
             <span class="item-note">{{item.unitPrice|currency:""}}</span>
           </p>
-          <ion-option-button class="button-balanced" ng-click="editProduct(item)">
+          <ion-option-button class="button-balanced" ng-if="isAdmin()" ng-click="editProduct(item)">
             编辑
           </ion-option-button>
-          <ion-option-button class="button-assertive" ng-click="deleteProduct(item)">
+          <ion-option-button class="button-assertive" ng-if="isAdmin()" ng-click="deleteProduct(item)">
             删除
           </ion-option-button>
         </ion-item>
