@@ -504,7 +504,7 @@ angular.module('app.controllers', [])
   };
 })
 
-.controller('purchaseOrderCtrl', function($scope, $state, UtilService, ProductService, PurchaseService) {
+.controller('purchaseOrderCtrl', function($scope, $state, UtilService, ProductService, PurchaseService, Upload) {
   $scope.descriptions = [];
   updateStore = function(products) {
     UtilService.hideLoading();
@@ -614,6 +614,39 @@ angular.module('app.controllers', [])
       UtilService.showLoading();
       PurchaseService.submitPurchase(purchase, submitSuccess, failedSubmit);
     }
+  };
+
+  $scope.unknownPurchase = {purchaseOrderId:"", totalPrice:0, items:[]};
+
+  $scope.upload = function(files) {
+    if (files && files.length) {
+      UtilService.showLoading();
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        Upload.upload({
+          url: 'ctu/v1/purchases/import',//http://52.197.213.21/
+          fields: {
+            'service': 'tbh'
+          },
+            file: file
+          /*}).progress(function(evt) {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);*/
+          }).success(function(data, status, headers, config) {
+            //console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
+            $scope.purchase = data.known;
+            $scope.unknownPurchase = data.unknown;
+            UtilService.hideLoading();
+          }).error(function(data, status) {
+            UtilService.hideLoading();
+            UtilService.httpFailed(data, status);
+          });
+      }
+    }
+  };
+
+  $scope.removeUnknown = function(item) {
+    $scope.unknownPurchase.items.splice($scope.unknownPurchase.items.indexOf(item), 1);
   };
 })
 
