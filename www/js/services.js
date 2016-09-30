@@ -232,21 +232,21 @@ angular.module('app.services', [])
         })
         .error(errCallBack);
   };
-}
-)
+})
 
-.service('PurchaseService', function(BackgroundService){
+.service('PurchaseService', function($q, BackgroundService){
   var purchases = [];
-  this.getPurchases = function(sucCallBack, errCallBack) {
-    BackgroundService.get("/purchases")
+  this.getPurchases = function() {
+    return $q(function(resolve, reject) {
+      BackgroundService.get("/purchases")
       .success(function(response) {
         angular.forEach(response, function(purchase){
           purchase.totalPrice /= 100;
         });
         purchases = response;
-        sucCallBack(response);
+        resolve(purchases);
       })
-      .error(errCallBack);
+    });
   };
 
   var showDetailPurchase;
@@ -262,30 +262,34 @@ angular.module('app.services', [])
     return !showDetailPurchase.id;
   };
 
-  this.getPurchaseById = function(id, sucCallBack, errCallBack) {
-    BackgroundService.get("/purchases/"+id)
-      .success(function(response) {
-                response.totalPrice /= 100;
-                angular.forEach(response.items, function(item){
-                          item.unitPrice /= 100;
-                });
-                sucCallBack(response);
-      })
-      .error(errCallBack);
+  this.getPurchaseById = function(id) {
+    return $q(function(resolve, reject) {
+      BackgroundService.get("/purchases/"+id)
+        .success(function(response) {
+                  response.totalPrice /= 100;
+                  angular.forEach(response.items, function(item){
+                            item.unitPrice /= 100;
+                  });
+                  resolve(response);
+        })
+        .error(reject)
+    });
   };
 
-  this.submitPurchase = function(purchase, sucCallBack, errCallBack) {
-    angular.forEach(purchase.items, function(item){
-              item.unitPrice *= 100;
-    });
+  this.submitPurchase = function(purchase) {
+    return $q(function(resolve, reject) {
+      angular.forEach(purchase.items, function(item){
+                item.unitPrice *= 100;
+      });
 
-    BackgroundService.post("/purchases", purchase)
-      .success(function(response) {
-                response.totalPrice /= 100;
-                purchases.push(response);
-                sucCallBack(response);
-      })
-      .error(errCallBack);
+      BackgroundService.post("/purchases", purchase)
+        .success(function(response) {
+                  response.totalPrice /= 100;
+                  purchases.push(response);
+                  resolve(response);
+        })
+        .error(reject);
+    });
   };
 
   this.remove = function(purchase, sucCallBack, errCallBack) {
@@ -345,8 +349,6 @@ angular.module('app.services', [])
     $http.defaults.headers.common.Authorization = userName+":"+password;
   };
 
-//  this.setAuth("admin", "admin");
-
   this.get = function() {
     var len= arguments.length;
     if(len == 2) {
@@ -372,8 +374,8 @@ angular.module('app.services', [])
 .service('UtilService', function($ionicPopup, $ionicLoading, $cordovaToast) {
   this.showResult = function(message, success) {
     if (success) {
-      this.toast(message);
-    //  this.alert(message);
+//      this.toast(message);
+      this.alert(message);
     } else {
       this.alert(message);
     }

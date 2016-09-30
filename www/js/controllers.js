@@ -360,21 +360,19 @@ angular.module('app.controllers', [])
     return AccountService.isAdmin();
   };
 
-  loadPurchaseSuccess = function(purchases) {
-    $scope.$broadcast('scroll.refreshComplete');
-    UtilService.hideLoading();
-    $scope.purchases = purchases;
-  };
-
-  loadPurchaseFailed = function(data, status) {
-    $scope.$broadcast('scroll.refreshComplete');
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
   $scope.loadPurchase = function() {
     UtilService.showLoading();
-    PurchaseService.getPurchases(loadPurchaseSuccess, loadPurchaseFailed);
+    PurchaseService.getPurchases()
+    .then(function(purchases) {
+          $scope.$broadcast('scroll.refreshComplete');
+          UtilService.hideLoading();
+          $scope.purchases = purchases;
+    })
+    .catch(function(data, status) {
+          $scope.$broadcast('scroll.refreshComplete');
+          UtilService.hideLoading();
+          UtilService.httpFailed(data, status);
+    });
   };
 
   $scope.loadPurchase();
@@ -527,20 +525,18 @@ angular.module('app.controllers', [])
 
   clearPurchase();
 
-  failedSubmit = function(data, status) {
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
-  submitSuccess = function() {
-    UtilService.hideLoading();
-    clearPurchase();
-    UtilService.showResult("提交成功", true);
-  };
-
   $scope.submitPurchase = function(purchase) {
       UtilService.showLoading();
-      PurchaseService.submitPurchase(purchase, submitSuccess, failedSubmit);
+      PurchaseService.submitPurchase(purchase)
+      .then(function() {
+        UtilService.hideLoading();
+        clearPurchase();
+        UtilService.showResult("提交成功", true);
+      })
+      .catch(function(data, status) {
+             UtilService.hideLoading();
+             UtilService.httpFailed(data, status);
+      });
   };
 
   $scope.cancel = function() {
@@ -560,7 +556,7 @@ angular.module('app.controllers', [])
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
         Upload.upload({
-          url: 'http://52.197.213.21/ctu/v1/purchases/import',//
+          url: '/ctu/v1/purchases/import',//http://52.197.213.21
           fields: {
             'service': 'tbh'
           },
