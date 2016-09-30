@@ -24,31 +24,22 @@ angular.module('app.controllers', [])
         SaleService.remove(saleItem);
     };
 
-    updateSaleStatics = function(saleStatics) {
-//      UtilService.hideLoading();
-/*      var mStep = saleStatics.curMonth / 10;
-      var tStep = saleStatics.curDay / 10;
-      $scope.sale.curDay = 0;
-      $scope.sale.curMonth = 0;
-
-      $interval(function(){
-         $scope.sale.curDay += tStep;
-         $scope.sale.curMonth += mStep;
-      },100, 10);
-*/
-      $scope.sale = saleStatics;
-      $scope.$broadcast('scroll.refreshComplete');
-    };
-
     failedRefreshStatics = function(data, status) {
-//      UtilService.hideLoading();
       UtilService.httpFailed(data, status);
       $scope.$broadcast('scroll.refreshComplete');
     };
 
     $scope.refreshSaleStatics = function() {
-//      UtilService.showLoading();
-      SaleService.getSaleStatics(updateSaleStatics, failedRefreshStatics);
+      SaleService.getSaleStatics()
+      .then(function(saleStatics) {
+        $scope.sale = saleStatics;
+      })
+      .catch(function(data, status) {
+        UtilService.httpFailed(data, status);
+      })
+      .finally(function() {
+        $scope.$broadcast('scroll.refreshComplete');
+      });
     };
 
     $scope.refreshSaleStatics();
@@ -57,21 +48,20 @@ angular.module('app.controllers', [])
         $state.go('tabs.saleItem');
     };
 
-    submitSuccess = function(response) {
-      UtilService.hideLoading();
-      SaleService.clearAll();
-      UtilService.showResult("提交成功", true);
-      $scope.refreshSaleStatics();
-    };
-
-    submitFailed = function(data, status){
-      UtilService.hideLoading();
-      UtilService.httpFailed(data, status);
-    };
-
     $scope.submitSaleItems = function() {
       UtilService.showLoading();
-      SaleService.submitSaleItems(submitSuccess, submitFailed);
+      SaleService.submitSaleItems()
+      .then(function(response) {
+        SaleService.clearAll();
+        UtilService.showResult("提交成功", true);
+        $scope.refreshSaleStatics();
+      })
+      .catch(function(data, status){
+        UtilService.httpFailed(data, status);
+      })
+      .finally(function() {
+        UtilService.hideLoading();
+      });
     };
 })
 
@@ -80,21 +70,20 @@ angular.module('app.controllers', [])
       return AccountService.isAdmin();
     };
 
-    updateStore = function(products) {
-      UtilService.hideLoading();
-      $scope.products = products;
-      $scope.$broadcast('scroll.refreshComplete');
-    };
-
-    failedRefresh = function(data, status) {
-      UtilService.hideLoading();
-      UtilService.httpFailed(data, status);
-      $scope.$broadcast('scroll.refreshComplete');
-    };
-
     $scope.refreshStores = function(force) {
       UtilService.showLoading();
-      ProductService.getStore(updateStore, failedRefresh, force);
+      ProductService.getStore(force)
+      .then(function(products) {
+        $scope.products = products;
+      })
+      .catch(function(data, status) {
+        UtilService.hideLoading();
+        UtilService.httpFailed(data, status);
+      })
+      .finally(function() {
+        UtilService.hideLoading();
+        $scope.$broadcast('scroll.refreshComplete');
+      });
     };
 
     $scope.refreshStores(false);
@@ -109,22 +98,19 @@ angular.module('app.controllers', [])
         $state.go('tabs.productItem');
     };
 
-    deleteSuccess = function(product) {
-        UtilService.hideLoading();
-    };
-
-    failedDelete = function(data, status) {
-      UtilService.hideLoading();
-      UtilService.httpFailed(data, status);
-    };
-
     $scope.deleteProduct = function(product) {
       UtilService.confirm('确定要删除该产品吗?')
-        .then(function(res) {
-             if(res) {
-               UtilService.showLoading();
-               ProductService.deleteProduct(product, deleteSuccess, failedDelete);
-             }
+      .then(function(res) {
+           if(res) {
+             UtilService.showLoading();
+             ProductService.deleteProduct(product)
+             .catch(function(data, status) {
+               UtilService.httpFailed(data, status);
+             })
+             .finally(function() {
+               UtilService.hideLoading();
+             });
+           }
       });
     };
 })
@@ -141,61 +127,51 @@ angular.module('app.controllers', [])
 })
 
 .controller('modifyPasswordCtrl', function($scope, $state, UtilService, AccountService) {
-  changePasswordSuccess = function() {
-    UtilService.hideLoading();
-    UtilService.showResult("修改成功", true);
-  };
-
-  changePasswordFailed = function(data, status) {
-    UtilService.hideLoading();
-    if (401 == status) {
-        UtilService.showResult("用户名或者密码错误", false);
-    } else {
-        UtilService.httpFailed(data, status);
-    }
-  };
-
   $scope.changePassword = function(password, newPassword) {
     UtilService.showLoading();
-    AccountService.changePassword(AccountService.getCurrentUser().userName, password, newPassword,
-        changePasswordSuccess, changePasswordFailed);
+    AccountService.changePassword(AccountService.getCurrentUser().userName, password, newPassword)
+    .then(function() {
+      UtilService.showResult("修改成功", true);
+    })
+    .catch(function(data, status) {
+      if (401 == status) {
+        UtilService.showResult("用户名或者密码错误", false);
+      } else {
+        UtilService.httpFailed(data, status);
+      }
+    })
+    .finally(function() {
+      UtilService.hideLoading();
+    });
   };
 })
 
 .controller('saleItemCtrl', function($scope, $state, $cordovaBarcodeScanner, SaleService, ProductService, UtilService) {
     $scope.descriptions = [];
-    updateStore = function(products) {
-      UtilService.hideLoading();
-      $scope.stores = products;
-      angular.forEach(products, function(product){
-        $scope.descriptions.push(product.barCode+"-"+product.title);
+
+    $scope.refreshProducts = function() {
+      UtilService.showLoading();
+      ProductService.getStore(false)
+      .then(function(products) {
+        $scope.stores = products;
+        angular.forEach(products, function(product){
+          $scope.descriptions.push(product.barCode+"-"+product.title);
+        });
+      })
+      .catch(function(data, status) {
+        UtilService.httpFailed(data, status);
+      })
+      .finally(function() {
+        UtilService.hideLoading();
       });
     };
 
-    failedRefresh = function(data, status) {
-      UtilService.hideLoading();
-      UtilService.httpFailed(data, status);
-    };
-
-    refreshProducts = function() {
-      UtilService.showLoading();
-      ProductService.getStore(updateStore, failedRefresh, false);
-    };
-
-    refreshProducts();
+    $scope.refreshProducts();
 
     $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, count:1};
     $scope.selectedStore = {selected:""};
 
-    updateSelected = function(product) {
-      if (!product) {
-        UtilService.alert("未找到产品信息");
-      } else {
-        $scope.selectedStore.selected = product.barCode+"-"+product.title;
-      }
-    };
-
-    verifyProduct = function(product) {
+    $scope.verifyProduct = function(product) {
       return (product.barCode.length > 0)
            &&(product.title.length > 0)
            &&(product.unitPrice != null)
@@ -204,7 +180,7 @@ angular.module('app.controllers', [])
     };
 
     $scope.putItem = function() {
-      if (!verifyProduct($scope.selectedProduct)) {
+      if (!$scope.verifyProduct($scope.selectedProduct)) {
         UtilService.alert("请输入正确的产品信息");
       } else {
         SaleService.putSaleItem(angular.copy($scope.selectedProduct));
@@ -237,19 +213,33 @@ angular.module('app.controllers', [])
       $scope.selectedStore.selected = "";
     };
 
-    failedGetByQR = function(data, status) {
-      UtilService.httpFailed(data, status);
-    };
-
     $scope.scanBarcode = function() {
 //        var imageData = {text:"http://www.tbh.cn/member/product/111224140834"};//111224140833
         $cordovaBarcodeScanner.scan().then(function(imageData) {
+            if ((!imageData.text) || (!imageData.text.length)) {
+              return;
+            }
+
             var index = imageData.text.lastIndexOf('/');
             if (index < 0) {
               alert("无效码:"+imageData.text);
               return;
             }
-            ProductService.getStoreByQR(imageData.text.substr(index+1), updateSelected, failedGetByQR);
+
+            UtilService.showLoading();
+            ProductService.getStoreByQR(imageData.text.substr(index+1))
+            .then(function(product) {
+              if (!product) {
+                UtilService.alert("未找到产品信息");
+              } else {
+                $scope.selectedStore.selected = product.barCode+"-"+product.title;
+              }
+            })
+            .catch(function(data, status) {
+              UtilService.httpFailed(data, status);
+            }).finally(function() {
+              UtilService.hideLoading();
+            });
         }, function(error) {
             alert("扫码失败: " + error);
         });
@@ -257,21 +247,20 @@ angular.module('app.controllers', [])
 })
 
 .controller('saleShowCtrl', function($scope, $stateParams, UtilService, SaleService) {
-    updateSaleDetail = function(saleDetail) {
-      UtilService.hideLoading();
-      $scope.saleDetail = saleDetail;
-    };
-
-    failedRefresh = function(data, status) {
-      UtilService.hideLoading();
-      UtilService.httpFailed(data, status);
-    };
-
     $scope.getDetail = function(from, to) {
       from.setHours(0,0,0,0);
       to.setHours(23,59,59,0);
       UtilService.showLoading();
-      SaleService.getDetail(from, to, updateSaleDetail, failedRefresh);
+      SaleService.getDetail(from, to)
+      .then(function(saleDetail) {
+        $scope.saleDetail = saleDetail;
+      })
+      .catch(function(data, status) {
+        UtilService.httpFailed(data, status);
+      })
+      .finally(function() {
+        UtilService.hideLoading();
+      });
     };
 
     $scope.from = new Date($stateParams.from);
@@ -281,34 +270,36 @@ angular.module('app.controllers', [])
 })
 
 .controller('loginCtrl', function($scope, $state, UtilService, AccountService) {
-    loginSuccess = function() {
-        UtilService.hideLoading();
-        $state.go('tabs.sales');
-    };
-
-    loginFailed = function(data, status) {
-        UtilService.hideLoading();
-        if (401 == status) {
-            UtilService.showResult("用户名或者密码错误", false);
-        } else {
-            UtilService.httpFailed(data, status);
-        }
-    };
-
-    attemptFailed = function(data) {
-        UtilService.hideLoading();
-    };
-
-    attemptLogin = function() {
+    $scope.attemptLogin = function() {
         UtilService.showLoading();
-        AccountService.attemptLogin(loginSuccess, attemptFailed);
+        AccountService.attemptLogin()
+        .then(function() {
+            $state.go('tabs.sales');
+        })
+        .finally(function() {
+          UtilService.hideLoading();
+        });
     };
 
-    attemptLogin();
+    $scope.attemptLogin();
 
     $scope.login = function(userName, password) {
-        UtilService.showLoading();
-        AccountService.login(userName, password, loginSuccess, loginFailed);
+      UtilService.showLoading();
+      AccountService.login(userName, password)
+      .then(function() {
+          $state.go('tabs.sales');
+      })
+      .catch(function(data, status) {
+        UtilService.hideLoading();
+        if (401 == status) {
+           UtilService.showResult("用户名或者密码错误", false);
+        } else {
+           UtilService.httpFailed(data, status);
+        }
+      })
+      .finally(function() {
+        UtilService.hideLoading();
+      });
     };
 })
 
@@ -322,18 +313,7 @@ angular.module('app.controllers', [])
         $scope.product = {barCode:"", title:"", unitPrice:0, left:0};
     }
 
-    saveProductSuccess = function(product) {
-        UtilService.hideLoading();
-        UtilService.showResult("提交成功", true);
-        $state.go('tabs.stores');
-    };
-
-    saveProductFailed = function(data, status) {
-        UtilService.hideLoading();
-        UtilService.httpFailed(data, status);
-    };
-
-    verifyProduct = function(product) {
+    $scope.verifyProduct = function(product) {
       return (product.barCode.length > 0)
            &&(product.title.length > 0)
            &&(product.unitPrice > 0)
@@ -342,15 +322,26 @@ angular.module('app.controllers', [])
     };
 
     $scope.saveProduct = function(product) {
-        if (!verifyProduct(product)) {
+        if (!$scope.verifyProduct(product)) {
           UtilService.alert("请输入正确的产品信息");
         } else {
           UtilService.showLoading();
-          if (ProductService.hasEditProduct()) {
-              ProductService.updateProduct(product, saveProductSuccess, saveProductFailed);
+          var promise;
+          if ($scope.hasEditProduct) {
+              promise = ProductService.updateProduct(product);
           } else {
-              ProductService.addProduct(product, saveProductSuccess, saveProductFailed);
+              promise = ProductService.addProduct(product);
           }
+
+          promise.then(function(product) {
+            UtilService.showResult("提交成功", true);
+            $state.go('tabs.stores');
+          })
+          .catch(function(data, status) {
+            UtilService.httpFailed(data, status);
+          }).finally(function() {
+            UtilService.hideLoading();
+          });
         }
     };
 })
@@ -364,14 +355,13 @@ angular.module('app.controllers', [])
     UtilService.showLoading();
     PurchaseService.getPurchases()
     .then(function(purchases) {
-          $scope.$broadcast('scroll.refreshComplete');
-          UtilService.hideLoading();
-          $scope.purchases = purchases;
+      $scope.purchases = purchases;
     })
     .catch(function(data, status) {
-          $scope.$broadcast('scroll.refreshComplete');
-          UtilService.hideLoading();
-          UtilService.httpFailed(data, status);
+      UtilService.httpFailed(data, status);
+    }).finally(function() {
+      UtilService.hideLoading();
+      $scope.$broadcast('scroll.refreshComplete');
     });
   };
 
@@ -386,22 +376,19 @@ angular.module('app.controllers', [])
     $state.go('tabs.purchaseOrder');
   };
 
-  removeSuccess = function(response) {
-    UtilService.hideLoading();
-  };
-
-  removeFailed = function(data, status) {
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
   $scope.remove = function(purchase) {
     UtilService.confirm('确定要删除该进货单吗?')
       .then(function(res) {
-         if(res) {
-            UtilService.showLoading();
-            PurchaseService.remove(purchase, removeSuccess, removeFailed);
-         }
+        if(res) {
+          UtilService.showLoading();
+          PurchaseService.remove(purchase)
+          .catch(function(data, status) {
+            UtilService.httpFailed(data, status);
+          })
+          .finally(function() {
+            UtilService.hideLoading();
+          });
+        }
       });
   };
 })
@@ -412,37 +399,25 @@ angular.module('app.controllers', [])
     return AccountService.isAdmin();
   };
 
-  loadDetailSuccess = function(purchase) {
-    $scope.$broadcast('scroll.refreshComplete');
-    UtilService.hideLoading();
-    $scope.purchase.amount = purchase.amount;
-    $scope.purchase.amountConfirmed = purchase.amountConfirmed;
-    $scope.purchase.totalPrice = purchase.totalPrice;
-    $scope.purchase.items = purchase.items;
-  };
-
-  loadDetailFailed = function(data, status) {
-    $scope.$broadcast('scroll.refreshComplete');
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
   $scope.loadDetail = function() {
     UtilService.showLoading();
-    PurchaseService.getPurchaseById($scope.purchase.id, loadDetailSuccess, loadDetailFailed);
+    PurchaseService.getPurchaseById($scope.purchase.id)
+    .then(function(purchase) {
+      $scope.purchase.amount = purchase.amount;
+      $scope.purchase.amountConfirmed = purchase.amountConfirmed;
+      $scope.purchase.totalPrice = purchase.totalPrice;
+      $scope.purchase.items = purchase.items;
+    })
+    .catch(function(data, status) {
+      UtilService.httpFailed(data, status);
+    })
+    .finally(function() {
+      $scope.$broadcast('scroll.refreshComplete');
+      UtilService.hideLoading();
+    });
   };
 
   $scope.loadDetail();
-
-  confirmSuccess = function() {
-    UtilService.hideLoading();
-    $scope.loadDetail();
-  };
-
-  confirmFailed = function(data, status) {
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
 
   $scope.confirm = function(item) {
     $scope.data = {};
@@ -470,39 +445,96 @@ angular.module('app.controllers', [])
 
     myPopup.then(function(res) {
       if (res) {
-        PurchaseService.confirm(item.id, res, confirmSuccess, confirmFailed);
+        PurchaseService.confirm(item, res)
+        .then(function(confirmed) {
+          item.amountConfirmed += confirmed.amount;
+          item.confirms.push(confirmed);
+          $scope.purchase.amountConfirmed += confirmed.amount;
+        })
+        .catch(function(data, status) {
+          UtilService.httpFailed(data, status);
+        })
+        .finally(function() {
+          UtilService.hideLoading();
+        });
       }
     });
   };
 
-  deleteSuccess = function(item) {
-    UtilService.hideLoading();
-    $scope.purchase.amount -= item.amount;
-    $scope.purchase.totalPrice -= item.amount*(item.unitPrice*100)/100;
-    $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
-  };
-
-  failedDelete = function(data, status) {
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
   $scope.deleteItem = function(item) {
     UtilService.confirm('确定要删除该产品吗?')
-        .then(function(res) {
-             if(res) {
-               UtilService.showLoading();
-               PurchaseService.deleteItem($scope.purchase, item, deleteSuccess, failedDelete);
-             }
-      });
+      .then(function(res) {
+        if(res) {
+          UtilService.showLoading();
+          PurchaseService.deleteItem($scope.purchase, item)
+          .then(function(item) {
+            UtilService.hideLoading();
+            $scope.purchase.amount -= item.amount;
+            $scope.purchase.totalPrice -= item.amount*(item.unitPrice*100)/100;
+            $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
+          }).catch(function(data, status) {
+            UtilService.httpFailed(data, status);
+          })
+          .finally(function() {
+            UtilService.hideLoading();
+          });
+        }
+    });
   };
 
   $scope.addItem = function() {
     $state.go('tabs.purchaseItem');
   };
+
+  $scope.editItem = function(item) {
+    $scope.itemData = {unitPrice:item.unitPrice, amount:item.amount};
+    var myPopup = $ionicPopup.show({
+      template: '<p>进价:<input type="number" ng-model="itemData.unitPrice"></p>' +
+                '<p>数量<input type="number" ng-model="itemData.amount"></p>',
+      title: '请输入',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: '<b>OK</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            if (!$scope.itemData.amount || $scope.itemData.amount < 0
+                || !$scope.itemData.unitPrice || $scope.itemData.unitPrice < 0) {
+              //don't allow the user to close unless he enters wifi password
+              e.preventDefault();
+            } else {
+              return 1;
+            }
+          }
+        }
+      ]
+    });
+
+    myPopup.then(function(res) {
+      if (res) {
+        PurchaseService.updateItem(item, $scope.itemData)
+        .then(function(updatedItem) {
+          $scope.purchase.amount -= item.amount;
+          $scope.purchase.amount += updatedItem.amount;
+          $scope.purchase.totalPrice -= item.amount*item.unitPrice;
+          $scope.purchase.totalPrice += updatedItem.amount*updatedItem.unitPrice;
+
+          item.unitPrice = updatedItem.unitPrice;
+          item.amount = updatedItem.amount;
+        })
+        .catch(function(data, status) {
+          UtilService.httpFailed(data, status);
+        })
+        .finally(function() {
+          UtilService.hideLoading();
+        });
+      }
+    });
+  };
 })
 
-.controller('purchaseOrderCtrl', function($scope, $state, UtilService, ProductService, PurchaseService, Upload) {
+.controller('purchaseOrderCtrl', function($scope, $state, $ionicPopup, UtilService, ProductService, PurchaseService, Upload) {
   $scope.addItem = function() {
     $state.go('tabs.purchaseItem');
   };
@@ -517,33 +549,35 @@ angular.module('app.controllers', [])
           && purchase.items.length;
   };
 
-  clearPurchase = function() {
+  $scope.clearPurchase = function() {
     $scope.purchase = {purchaseOrderId:"", totalPrice:0, items:[]};
     $scope.unknownPurchase = {purchaseOrderId:"", totalPrice:0, items:[]};
     PurchaseService.setShowDetailPurchase($scope.purchase);
   };
 
-  clearPurchase();
+  $scope.clearPurchase();
 
   $scope.submitPurchase = function(purchase) {
       UtilService.showLoading();
       PurchaseService.submitPurchase(purchase)
       .then(function() {
-        UtilService.hideLoading();
-        clearPurchase();
+        $scope.clearPurchase();
         UtilService.showResult("提交成功", true);
+        $state.go('tabs.purchases');
       })
       .catch(function(data, status) {
-             UtilService.hideLoading();
-             UtilService.httpFailed(data, status);
+         UtilService.httpFailed(data, status);
+      })
+      .finally(function() {
+        UtilService.hideLoading();
       });
   };
 
   $scope.cancel = function() {
-    clearPurchase();
+    $scope.clearPurchase();
   };
 
-  formatPurchase = function(purchase) {
+  $scope.formatPurchase = function(purchase) {
     purchase.totalPrice /= 100;
     angular.forEach(purchase.items, function(product){
                   product.unitPrice /= 100;
@@ -567,11 +601,11 @@ angular.module('app.controllers', [])
           }).success(function(data, status, headers, config) {
             //console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
             $scope.purchase = data.known;
-            formatPurchase($scope.purchase);
+            $scope.formatPurchase($scope.purchase);
             PurchaseService.setShowDetailPurchase($scope.purchase);
 
             $scope.unknownPurchase = data.unknown;
-            formatPurchase($scope.unknownPurchase);
+            $scope.formatPurchase($scope.unknownPurchase);
 
             UtilService.hideLoading();
           }).error(function(data, status) {
@@ -585,42 +619,80 @@ angular.module('app.controllers', [])
   $scope.removeUnknown = function(item) {
     $scope.unknownPurchase.items.splice($scope.unknownPurchase.items.indexOf(item), 1);
   };
+
+  $scope.addProduct = function(item) {
+    $scope.itemData = {unitPrice:item.unitPrice};
+    var myPopup = $ionicPopup.show({
+      template: '<input type="number" ng-model="itemData.unitPrice">',
+      title: '请输入销售单价',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: '<b>OK</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            if (!$scope.itemData.unitPrice || $scope.itemData.unitPrice < 0) {
+              //don't allow the user to close unless he enters wifi password
+              e.preventDefault();
+            } else {
+              return $scope.itemData.unitPrice;
+            }
+          }
+        }
+      ]
+    });
+
+    myPopup.then(function(res) {
+      if (res) {
+        var product = {barCode:item.barCode, title:item.title, unitPrice:res, left:0};
+        ProductService.addProduct(product)
+        .then(function(product) {
+          $scope.unknownPurchase.amount -= item.amount;
+          $scope.purchase.amount += item.amount;
+          $scope.unknownPurchase.totalPrice -= item.amount*item.unitPrice;
+          $scope.purchase.totalPrice += item.amount*item.unitPrice;
+
+          $scope.unknownPurchase.items.splice($scope.unknownPurchase.items.indexOf(item), 1);
+          $scope.purchase.items.push(item);
+        })
+        .catch(function(data, status) {
+          UtilService.httpFailed(data, status);
+        })
+        .finally(function() {
+          UtilService.hideLoading();
+        });
+      }
+    });
+  };
 })
 
 .controller('purchaseItemCtrl', function($scope, $state, UtilService, ProductService, PurchaseService) {
   $scope.descriptions = [];
   $scope.purchase = PurchaseService.getShowDetailPurchase();
-  updateStore = function(products) {
-    UtilService.hideLoading();
-    $scope.stores = products;
-    angular.forEach(products, function(product){
-      $scope.descriptions.push(product.barCode+"-"+product.title);
+
+  $scope.refreshProducts = function() {
+    UtilService.showLoading();
+    ProductService.getStore(false)
+    .then(function(products) {
+      $scope.stores = products;
+      angular.forEach(products, function(product){
+        $scope.descriptions.push(product.barCode+"-"+product.title);
+      });
+    })
+    .catch(function(data, status) {
+       UtilService.httpFailed(data, status);
+    })
+    .finally(function() {
+      UtilService.hideLoading();
     });
   };
 
-  failedRefresh = function(data, status) {
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
-  refreshProducts = function() {
-    UtilService.showLoading();
-    ProductService.getStore(updateStore, failedRefresh, false);
-  };
-
-  refreshProducts();
+  $scope.refreshProducts();
 
   $scope.discount = {value:58};
   $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, purchasePrice:0, count:1};
   $scope.selectedStore = {selected:""};
-
-  verifyProduct = function(product) {
-    return (product.barCode.length > 0)
-         &&(product.title.length > 0)
-         &&(product.purchasePrice != null)
-         &&(product.purchasePrice >= 0)
-         &&(product.count > 0);
-  };
 
   $scope.$watch('selectedStore.selected', function() {
     var words = $scope.selectedStore.selected.split('-');
@@ -651,35 +723,62 @@ angular.module('app.controllers', [])
     $scope.selectedStore.selected = "";
   };
 
-  failedSubmit = function(data, status) {
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
-  submitSuccess = function(item) {
-    UtilService.hideLoading();
-    UtilService.showResult("提交成功", true);
-
-    $scope.purchase.amount += item.amount;
-    $scope.purchase.totalPrice += item.amount*(item.unitPrice*100)/100;
-    $scope.purchase.items.push(item);
-
-    $state.go('tabs.purchaseDetail');
+  $scope.verifyProduct = function(product) {
+    return (product.barCode.length > 0)
+         &&(product.title.length > 0)
+         &&(product.purchasePrice != null)
+         &&(product.purchasePrice >= 0)
+         &&(product.count > 0);
   };
 
   $scope.submitAddItem = function(product) {
     var item = {barCode:product.barCode, title:product.title, unitPrice:product.purchasePrice, amount:product.count};
-    if (!verifyProduct(product)) {
+    if (!$scope.verifyProduct(product)) {
       UtilService.alert("请输入正确的产品信息");
     } else if (PurchaseService.isNewPurchase()){
+      var bFind = false;
+      for (var i = 0; i < $scope.purchase.items.length; i++) {
+        if ($scope.purchase.items[i].barCode === item.barCode
+        && $scope.purchase.items[i].unitPrice === item.unitPrice) {
+          $scope.purchase.items[i].amount += item.amount;
+          bFind = true;
+          break;
+        }
+      }
+
       $scope.purchase.amount += item.amount;
       $scope.purchase.totalPrice += item.amount*(item.unitPrice*100)/100;
-      $scope.purchase.items.push(item);
+      if (!bFind) {
+        $scope.purchase.items.push(item);
+      }
+
       $state.go('tabs.purchaseOrder');
     } else {
+      for (var i = 0; i < $scope.purchase.items.length; i++) {
+        if ($scope.purchase.items[i].barCode === item.barCode
+        && $scope.purchase.items[i].unitPrice === item.unitPrice) {
+          UtilService.alert('当前添加的产品在进货单中已存在,请直接编辑该产品。')
+          return;
+        }
+      }
+
       UtilService.showLoading();
-      PurchaseService.addItem($scope.purchase, item, submitSuccess, failedSubmit);
+      PurchaseService.addItem($scope.purchase, item)
+      .then(function(item) {
+        UtilService.showResult("提交成功", true);
+
+        $scope.purchase.amount += item.amount;
+        $scope.purchase.totalPrice += item.amount*(item.unitPrice*100)/100;
+        $scope.purchase.items.push(item);
+
+        $state.go('tabs.purchaseDetail');
+      })
+      .catch(function(data, status) {
+         UtilService.httpFailed(data, status);
+      })
+      .finally(function() {
+        UtilService.hideLoading();
+      });
     }
   };
-
 })

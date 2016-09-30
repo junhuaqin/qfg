@@ -30,7 +30,7 @@
           {{confirm.confirmAt|date:'yyyy-MM-dd HH:mm:ss'}} {{confirm.sale}}
           <span class="item-note">{{confirm.amount}}</span>
         </p>
-        <ion-option-button class="button-balanced" ng-if="isAdmin()" ng-click="">
+        <ion-option-button class="button-balanced" ng-if="isAdmin()" ng-click="editItem(item)">
           编辑
         </ion-option-button>
         <ion-option-button class="button-positive" ng-click="confirm(item)">

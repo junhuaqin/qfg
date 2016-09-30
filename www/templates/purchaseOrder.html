@@ -37,6 +37,9 @@
           <p>{{itemUnknown.barCode}}
             <span class="item-note">{{itemUnknown.unitPrice|currency:""}}</span>
           </p>
+          <ion-option-button class="button-positive" ng-click="addProduct(itemUnknown)">
+            添加
+          </ion-option-button>
           <ion-option-button class="button-assertive" ng-click="removeUnknown(itemUnknown)">
             删除
           </ion-option-button>
