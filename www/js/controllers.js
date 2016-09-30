@@ -618,13 +618,20 @@ angular.module('app.controllers', [])
 
   $scope.unknownPurchase = {purchaseOrderId:"", totalPrice:0, items:[]};
 
+  formatPurchase = function(purchase) {
+    purchase.totalPrice /= 100;
+    angular.forEach(purchase.items, function(product){
+                  product.unitPrice /= 100;
+    });
+  };
+
   $scope.upload = function(files) {
     if (files && files.length) {
       UtilService.showLoading();
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
         Upload.upload({
-          url: 'ctu/v1/purchases/import',//http://52.197.213.21/
+          url: 'http://52.197.213.21/ctu/v1/purchases/import',//
           fields: {
             'service': 'tbh'
           },
@@ -635,7 +642,11 @@ angular.module('app.controllers', [])
           }).success(function(data, status, headers, config) {
             //console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
             $scope.purchase = data.known;
+            formatPurchase($scope.purchase);
+
             $scope.unknownPurchase = data.unknown;
+            formatPurchase($scope.unknownPurchase);
+
             UtilService.hideLoading();
           }).error(function(data, status) {
             UtilService.hideLoading();

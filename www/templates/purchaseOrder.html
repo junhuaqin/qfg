@@ -7,17 +7,17 @@
       </button>
     </ion-nav-buttons>
     <ion-content padding="false" class="has-header">
-      <div class="list card">
+      <!--<div class="list card">
         <label class="item item-input item-button-right">
           <span class="input-label">进货单</span>
           <input type="text" ng-model="purchase.purchaseOrderId">
         </label>
         <ion-item class="item-button-right">
           添加商品
-          <button class="button button-clear button-positive" ng-if="!addItem.show" ng-click="showAdd()">
+          <button class="button button-clear button-positive" ng-show="!addItem.show" ng-click="showAdd()">
             <i class="icon ion-plus"></i>
           </button>
-          <button class="button button-clear button-positive" ng-if="addItem.show" ng-click="cancelAdd()">
+          <button class="button button-clear button-positive" ng-show="addItem.show" ng-click="cancelAdd()">
             <i class="icon ion-minus"></i>
           </button>
         </ion-item>
@@ -51,7 +51,7 @@
             </button>
           </ion-item>
         </div>
-      </div>
+      </div>-->
       <ion-list>
         <ion-item class="item-divider">
           <p class="item-note">总价：{{purchase.totalPrice|currency:""}}</p>
@@ -66,23 +66,23 @@
             删除
           </ion-option-button>
         </ion-item>
-      </ion-list>
-      <ion-list ng-show="unknownPurchase.items.length">
-        <ion-item class="item-divider item-assertive">
-          <p>不识别的产品
-            <span class="item-note">总价：{{unknownPurchase.totalPrice|currency:""}}</span>
-          </p>
-        </ion-item>
-        <ion-item ng-repeat="itemUnknown in unknownPurchase.items">
-          <h2>{{itemUnknown.title}}</h2>
-          <span class="badge">{{itemUnknown.amount}}</span>
-          <p>{{itemUnknown.barCode}}
-            <span class="item-note">{{itemUnknown.unitPrice|currency:""}}</span>
-          </p>
-          <ion-option-button class="button-assertive" ng-click="removeUnknown(itemUnknown)">
-            删除
-          </ion-option-button>
-        </ion-item>
+        <div ng-show="unknownPurchase.items.length">
+          <ion-item class="item-divider item-assertive">
+            <p>不识别的产品
+              <span class="item-note">总价：{{unknownPurchase.totalPrice|currency:""}}</span>
+            </p>
+          </ion-item>
+          <ion-item ng-repeat="itemUnknown in unknownPurchase.items">
+            <h2>{{itemUnknown.title}}</h2>
+            <span class="badge">{{itemUnknown.amount}}</span>
+            <p>{{itemUnknown.barCode}}
+              <span class="item-note">{{itemUnknown.unitPrice|currency:""}}</span>
+            </p>
+            <ion-option-button class="button-assertive" ng-click="removeUnknown(itemUnknown)">
+              删除
+            </ion-option-button>
+          </ion-item>
+        </div>
       </ion-list>
     </ion-content>
 </ion-view>
