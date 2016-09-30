@@ -258,6 +258,10 @@ angular.module('app.services', [])
     return showDetailPurchase;
   };
 
+  this.isNewPurchase = function() {
+    return !showDetailPurchase.id;
+  };
+
   this.getPurchaseById = function(id, sucCallBack, errCallBack) {
     BackgroundService.get("/purchases/"+id)
       .success(function(response) {

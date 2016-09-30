@@ -505,95 +505,27 @@ angular.module('app.controllers', [])
 })
 
 .controller('purchaseOrderCtrl', function($scope, $state, UtilService, ProductService, PurchaseService, Upload) {
-  $scope.descriptions = [];
-  updateStore = function(products) {
-    UtilService.hideLoading();
-    $scope.stores = products;
-    angular.forEach(products, function(product){
-      $scope.descriptions.push(product.barCode+"-"+product.title);
-    });
+  $scope.addItem = function() {
+    $state.go('tabs.purchaseItem');
   };
 
-  failedRefresh = function(data, status) {
-    UtilService.hideLoading();
-    UtilService.httpFailed(data, status);
-  };
-
-  refreshProducts = function() {
-    UtilService.showLoading();
-    ProductService.getStore(updateStore, failedRefresh, false);
-  };
-
-  refreshProducts();
-
-  $scope.discount = {value:58};
-  $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, purchasePrice:0, count:1};
-  $scope.selectedStore = {selected:""};
-
-  $scope.verifyProduct = function(product) {
-    return (product.barCode.length > 0)
-         &&(product.title.length > 0)
-         &&(product.unitPrice != null)
-         &&(product.unitPrice >= 0)
-         &&(product.count > 0);
-  };
-
-  $scope.$watch('selectedStore.selected', function() {
-    var words = $scope.selectedStore.selected.split('-');
-    if($scope.selectedProduct.barCode != words[0]){
-      var bFind = false;
-      for(var i=0;i<$scope.stores.length;i++){
-        if($scope.stores[i].barCode == words[0]) {
-          $scope.selectedProduct.barCode = $scope.stores[i].barCode;
-          $scope.selectedProduct.title = $scope.stores[i].title;
-          $scope.selectedProduct.unitPrice = $scope.stores[i].unitPrice;
-          $scope.selectedProduct.purchasePrice = $scope.selectedProduct.unitPrice*$scope.discount.value/100;
-          bFind = true;
-          break;
-        }
-      }
-
-      if (!bFind) {
-        $scope.selectedProduct = {barCode:"", title:"", unitPrice:0, purchasePrice:0, count:1};
-      }
-    }
-  });
-
-  $scope.$watch('discount.value', function() {
-    $scope.selectedProduct.purchasePrice = $scope.selectedProduct.unitPrice*$scope.discount.value/100;
-  });
-
-  $scope.clearSearch = function() {
-    $scope.selectedStore.selected = "";
-  };
-
-  $scope.addItem = {show:false};
-  $scope.showAdd = function() {
-    $scope.addItem.show = true;
-  };
-
-  $scope.cancelAdd = function() {
-    $scope.addItem.show = false;
-    $scope.clearSearch();
-  };
-
-  $scope.submitAddItem = function(product) {
-    $scope.addItem.show = false;
-    $scope.purchase.totalPrice += product.purchasePrice*product.count;
-    $scope.purchase.items.push({barCode:product.barCode, title:product.title, unitPrice:product.purchasePrice, amount:product.count});
-    $scope.clearSearch();
-  };
-
-  $scope.purchase = {purchaseOrderId:"", totalPrice:0, items:[]};
   $scope.remove = function(item) {
     $scope.purchase.totalPrice -= item.unitPrice*item.amount;
     $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
   };
 
-  verifyPurchase = function(purchase) {
+  $scope.verifyPurchase = function(purchase) {
     return purchase.purchaseOrderId.length
           && purchase.items.length;
   };
+
+  clearPurchase = function() {
+    $scope.purchase = {purchaseOrderId:"", totalPrice:0, items:[]};
+    $scope.unknownPurchase = {purchaseOrderId:"", totalPrice:0, items:[]};
+    PurchaseService.setShowDetailPurchase($scope.purchase);
+  };
+
+  clearPurchase();
 
   failedSubmit = function(data, status) {
     UtilService.hideLoading();
@@ -602,21 +534,18 @@ angular.module('app.controllers', [])
 
   submitSuccess = function() {
     UtilService.hideLoading();
-    $scope.purchase = {purchaseOrderId:"", totalPrice:0, items:[]};
+    clearPurchase();
     UtilService.showResult("提交成功", true);
-    $state.go('tabs.purchases');
   };
 
   $scope.submitPurchase = function(purchase) {
-    if(!verifyPurchase(purchase)) {
-      UtilService.alert('请输入完整信息');
-    } else {
       UtilService.showLoading();
       PurchaseService.submitPurchase(purchase, submitSuccess, failedSubmit);
-    }
   };
 
-  $scope.unknownPurchase = {purchaseOrderId:"", totalPrice:0, items:[]};
+  $scope.cancel = function() {
+    clearPurchase();
+  };
 
   formatPurchase = function(purchase) {
     purchase.totalPrice /= 100;
@@ -643,6 +572,7 @@ angular.module('app.controllers', [])
             //console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
             $scope.purchase = data.known;
             formatPurchase($scope.purchase);
+            PurchaseService.setShowDetailPurchase($scope.purchase);
 
             $scope.unknownPurchase = data.unknown;
             formatPurchase($scope.unknownPurchase);
@@ -742,13 +672,17 @@ angular.module('app.controllers', [])
   };
 
   $scope.submitAddItem = function(product) {
+    var item = {barCode:product.barCode, title:product.title, unitPrice:product.purchasePrice, amount:product.count};
     if (!verifyProduct(product)) {
       UtilService.alert("请输入正确的产品信息");
+    } else if (PurchaseService.isNewPurchase()){
+      $scope.purchase.amount += item.amount;
+      $scope.purchase.totalPrice += item.amount*(item.unitPrice*100)/100;
+      $scope.purchase.items.push(item);
+      $state.go('tabs.purchaseOrder');
     } else {
-    PurchaseService.addItem($scope.purchase,
-        {barCode:product.barCode, title:product.title, unitPrice:product.purchasePrice, amount:product.count},
-        submitSuccess,
-        failedSubmit);
+      UtilService.showLoading();
+      PurchaseService.addItem($scope.purchase, item, submitSuccess, failedSubmit);
     }
   };
 
