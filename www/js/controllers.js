@@ -2,7 +2,7 @@ angular.module('app.controllers', [])
 .controller('AppCtrl', function($scope, $state, UtilService, AUTH_EVENTS) {
 
   $scope.$on(AUTH_EVENTS.notAuthorized, function(event) {
-    UtilService.alert('无权访问改资源');
+    UtilService.alert('无权访问该资源');
   });
 
   $scope.$on(AUTH_EVENTS.notAuthenticated, function(event) {
@@ -24,18 +24,13 @@ angular.module('app.controllers', [])
         SaleService.remove(saleItem);
     };
 
-    failedRefreshStatics = function(data, status) {
-      UtilService.httpFailed(data, status);
-      $scope.$broadcast('scroll.refreshComplete');
-    };
-
     $scope.refreshSaleStatics = function() {
       SaleService.getSaleStatics()
       .then(function(saleStatics) {
         $scope.sale = saleStatics;
       })
-      .catch(function(data, status) {
-        UtilService.httpFailed(data, status);
+      .catch(function(errMsg) {
+        UtilService.httpFailed(errMsg.err, errMsg.status);
       })
       .finally(function() {
         $scope.$broadcast('scroll.refreshComplete');
@@ -56,8 +51,8 @@ angular.module('app.controllers', [])
         UtilService.showResult("提交成功", true);
         $scope.refreshSaleStatics();
       })
-      .catch(function(data, status){
-        UtilService.httpFailed(data, status);
+      .catch(function(errMsg) {
+        UtilService.httpFailed(errMsg.err, errMsg.status);
       })
       .finally(function() {
         UtilService.hideLoading();
@@ -76,9 +71,8 @@ angular.module('app.controllers', [])
       .then(function(products) {
         $scope.products = products;
       })
-      .catch(function(data, status) {
-        UtilService.hideLoading();
-        UtilService.httpFailed(data, status);
+      .catch(function(errMsg) {
+        UtilService.httpFailed(errMsg.err, errMsg.status);
       })
       .finally(function() {
         UtilService.hideLoading();
@@ -104,8 +98,8 @@ angular.module('app.controllers', [])
            if(res) {
              UtilService.showLoading();
              ProductService.deleteProduct(product)
-             .catch(function(data, status) {
-               UtilService.httpFailed(data, status);
+             .catch(function(errMsg) {
+               UtilService.httpFailed(errMsg.err, errMsg.status);
              })
              .finally(function() {
                UtilService.hideLoading();
@@ -133,7 +127,9 @@ angular.module('app.controllers', [])
     .then(function() {
       UtilService.showResult("修改成功", true);
     })
-    .catch(function(data, status) {
+    .catch(function(errMsg) {
+      var data = errMsg.err;
+      var status = errMsg.status;
       if (401 == status) {
         UtilService.showResult("用户名或者密码错误", false);
       } else {
@@ -158,8 +154,8 @@ angular.module('app.controllers', [])
           $scope.descriptions.push(product.barCode+"-"+product.title);
         });
       })
-      .catch(function(data, status) {
-        UtilService.httpFailed(data, status);
+      .catch(function(errMsg) {
+        UtilService.httpFailed(errMsg.err, errMsg.status);
       })
       .finally(function() {
         UtilService.hideLoading();
@@ -235,9 +231,10 @@ angular.module('app.controllers', [])
                 $scope.selectedStore.selected = product.barCode+"-"+product.title;
               }
             })
-            .catch(function(data, status) {
-              UtilService.httpFailed(data, status);
-            }).finally(function() {
+            .catch(function(errMsg) {
+              UtilService.httpFailed(errMsg.err, errMsg.status);
+            })
+            .finally(function() {
               UtilService.hideLoading();
             });
         }, function(error) {
@@ -255,8 +252,8 @@ angular.module('app.controllers', [])
       .then(function(saleDetail) {
         $scope.saleDetail = saleDetail;
       })
-      .catch(function(data, status) {
-        UtilService.httpFailed(data, status);
+      .catch(function(errMsg) {
+        UtilService.httpFailed(errMsg.err, errMsg.status);
       })
       .finally(function() {
         UtilService.hideLoading();
@@ -289,8 +286,9 @@ angular.module('app.controllers', [])
       .then(function() {
           $state.go('tabs.sales');
       })
-      .catch(function(data, status) {
-        UtilService.hideLoading();
+      .catch(function(errMsg) {
+        var data = errMsg.err;
+        var status = errMsg.status;
         if (401 == status) {
            UtilService.showResult("用户名或者密码错误", false);
         } else {
@@ -337,9 +335,10 @@ angular.module('app.controllers', [])
             UtilService.showResult("提交成功", true);
             $state.go('tabs.stores');
           })
-          .catch(function(data, status) {
-            UtilService.httpFailed(data, status);
-          }).finally(function() {
+          .catch(function(errMsg) {
+            UtilService.httpFailed(errMsg.err, errMsg.status);
+          })
+          .finally(function() {
             UtilService.hideLoading();
           });
         }
@@ -357,9 +356,10 @@ angular.module('app.controllers', [])
     .then(function(purchases) {
       $scope.purchases = purchases;
     })
-    .catch(function(data, status) {
-      UtilService.httpFailed(data, status);
-    }).finally(function() {
+    .catch(function(errMsg) {
+      UtilService.httpFailed(errMsg.err, errMsg.status);
+    })
+    .finally(function() {
       UtilService.hideLoading();
       $scope.$broadcast('scroll.refreshComplete');
     });
@@ -382,8 +382,8 @@ angular.module('app.controllers', [])
         if(res) {
           UtilService.showLoading();
           PurchaseService.remove(purchase)
-          .catch(function(data, status) {
-            UtilService.httpFailed(data, status);
+          .catch(function(errMsg) {
+            UtilService.httpFailed(errMsg.err, errMsg.status);
           })
           .finally(function() {
             UtilService.hideLoading();
@@ -408,8 +408,8 @@ angular.module('app.controllers', [])
       $scope.purchase.totalPrice = purchase.totalPrice;
       $scope.purchase.items = purchase.items;
     })
-    .catch(function(data, status) {
-      UtilService.httpFailed(data, status);
+    .catch(function(errMsg) {
+      UtilService.httpFailed(errMsg.err, errMsg.status);
     })
     .finally(function() {
       $scope.$broadcast('scroll.refreshComplete');
@@ -451,8 +451,8 @@ angular.module('app.controllers', [])
           item.confirms.push(confirmed);
           $scope.purchase.amountConfirmed += confirmed.amount;
         })
-        .catch(function(data, status) {
-          UtilService.httpFailed(data, status);
+        .catch(function(errMsg) {
+          UtilService.httpFailed(errMsg.err, errMsg.status);
         })
         .finally(function() {
           UtilService.hideLoading();
@@ -472,8 +472,9 @@ angular.module('app.controllers', [])
             $scope.purchase.amount -= item.amount;
             $scope.purchase.totalPrice -= item.amount*(item.unitPrice*100)/100;
             $scope.purchase.items.splice($scope.purchase.items.indexOf(item), 1);
-          }).catch(function(data, status) {
-            UtilService.httpFailed(data, status);
+          })
+          .catch(function(errMsg) {
+            UtilService.httpFailed(errMsg.err, errMsg.status);
           })
           .finally(function() {
             UtilService.hideLoading();
@@ -523,8 +524,8 @@ angular.module('app.controllers', [])
           item.unitPrice = updatedItem.unitPrice;
           item.amount = updatedItem.amount;
         })
-        .catch(function(data, status) {
-          UtilService.httpFailed(data, status);
+        .catch(function(errMsg) {
+          UtilService.httpFailed(errMsg.err, errMsg.status);
         })
         .finally(function() {
           UtilService.hideLoading();
@@ -565,8 +566,8 @@ angular.module('app.controllers', [])
         UtilService.showResult("提交成功", true);
         $state.go('tabs.purchases');
       })
-      .catch(function(data, status) {
-         UtilService.httpFailed(data, status);
+      .catch(function(errMsg) {
+        UtilService.httpFailed(errMsg.err, errMsg.status);
       })
       .finally(function() {
         UtilService.hideLoading();
@@ -656,8 +657,8 @@ angular.module('app.controllers', [])
           $scope.unknownPurchase.items.splice($scope.unknownPurchase.items.indexOf(item), 1);
           $scope.purchase.items.push(item);
         })
-        .catch(function(data, status) {
-          UtilService.httpFailed(data, status);
+        .catch(function(errMsg) {
+          UtilService.httpFailed(errMsg.err, errMsg.status);
         })
         .finally(function() {
           UtilService.hideLoading();
@@ -680,8 +681,8 @@ angular.module('app.controllers', [])
         $scope.descriptions.push(product.barCode+"-"+product.title);
       });
     })
-    .catch(function(data, status) {
-       UtilService.httpFailed(data, status);
+    .catch(function(errMsg) {
+      UtilService.httpFailed(errMsg.err, errMsg.status);
     })
     .finally(function() {
       UtilService.hideLoading();
@@ -773,8 +774,8 @@ angular.module('app.controllers', [])
 
         $state.go('tabs.purchaseDetail');
       })
-      .catch(function(data, status) {
-         UtilService.httpFailed(data, status);
+      .catch(function(errMsg) {
+        UtilService.httpFailed(errMsg.err, errMsg.status);
       })
       .finally(function() {
         UtilService.hideLoading();
