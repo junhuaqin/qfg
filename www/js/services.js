@@ -200,12 +200,12 @@ angular.module('app.services', [])
   var is_admin = false;
   saveAccount = function(user, password) {
     locals.setObject("account", {userName:user, password:password});
-    BackgroundService.setAuth(user, password);
   };
 
   this.login = function(user, password) {
     return $q(function(resolve, reject) {
-      BackgroundService.post("/users/login", {userName:user, password:password})
+      BackgroundService.setAuth(user, password);
+      BackgroundService.post("/users/login", {userName:user.split('@')[0], password:password})
         .success(function(response) {
             saveAccount(user, password);
             is_admin = (response.roleId == 1);
@@ -388,7 +388,9 @@ angular.module('app.services', [])
 
 .service('BackgroundService', function($http, backend){
   this.setAuth = function(userName, password) {
-    $http.defaults.headers.common.Authorization = userName+":"+password;
+    var parts = userName.split('@');
+    $http.defaults.headers.common['ctuCompany'] = parts[1];
+    $http.defaults.headers.common.Authorization = parts[0]+":"+password;
   };
 
   this.get = function() {
@@ -416,8 +418,8 @@ angular.module('app.services', [])
 .service('UtilService', function($ionicPopup, $ionicLoading, $cordovaToast) {
   this.showResult = function(message, success) {
     if (success) {
-//      this.toast(message);
-      this.alert(message);
+      this.toast(message);
+//      this.alert(message);
     } else {
       this.alert(message);
     }

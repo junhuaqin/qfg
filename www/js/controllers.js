@@ -590,7 +590,7 @@ angular.module('app.controllers', [])
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
         Upload.upload({
-          url: '/ctu/v1/purchases/import',//http://52.197.213.21
+          url: 'http://52.197.213.21/ctu/v1/purchases/import',//
           fields: {
             'service': 'tbh'
           },
